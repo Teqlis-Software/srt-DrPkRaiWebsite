@@ -705,7 +705,7 @@ export default function Home() {
               <div className="w-56 h-72 sm:w-72 sm:h-88 bg-white p-2.5 rounded-3xl shadow-2xl border-4 border-[#018B00] flex flex-col items-center justify-center transition-all duration-700 hover:scale-105 hover:shadow-green-500/50">
                 <div className="w-full h-full rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex items-center justify-center">
                   <img
-                    src="/DrPkRaiPhoto.jpg"
+                    src="/DrpkRaiPhoto.jpg"
                     alt="Dr. P. K. Rai"
                     className="w-full h-full object-cover object-center cursor-pointer transition-all duration-700 hover:scale-110"
                     onClick={() => setLightboxImg('/DrPkRaiPhoto.jpg')}
