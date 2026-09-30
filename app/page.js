@@ -146,7 +146,7 @@ export default function Home() {
 
   const content = {
     hi: {
-      subtitle: "डॉ० पी० के० राय • पूर्व विधायक तमकुहीराज विधानसभा",
+      subtitle: "डॉ० पी० के० राय • पूर्व विधायक/पूर्व राज्यमंत्री तमकुहीराज विधानसभा",
       desc: "समर्पित जननेता, वरिष्ठ ई.एन.टी. सर्जन और पूर्व विधायक जो जन कल्याण, ग्रामीण स्वास्थ्य और शिक्षा के लिए प्रतिबद्ध हैं।",
       viewProfile: "विस्तृत परिचय देखें",
       contactOffice: "कार्यालय संपर्क",
@@ -222,7 +222,7 @@ export default function Home() {
       copyright: "कॉपीराइट © 2026 Dr. P. K. Rai (पूर्व विधायक) - सर्वाधिकार सुरक्षित।"
     },
     en: {
-      subtitle: "Dr. P. K. Rai • Ex-MLA Tamkuhiraj Assembly",
+      subtitle: "Dr. P. K. Rai • Ex-MLA/Former Minister of Uttar Pradesh Tamkuhiraj Assembly",
       desc: "Dedicated Leader, Senior ENT Surgeon, and Ex-Legislator committed to public welfare, rural health, and education.",
       viewProfile: "View Detailed Profile",
       contactOffice: "Contact Office",
@@ -708,7 +708,7 @@ export default function Home() {
                     src="/DrpkRaiPhoto.jpg"
                     alt="Dr. P. K. Rai"
                     className="w-full h-full object-cover object-center cursor-pointer transition-all duration-700 hover:scale-110"
-                    onClick={() => setLightboxImg('/DrPkRaiPhoto.jpg')}
+                    onClick={() => setLightboxImg('/DrpkRaiPhoto.jpg')}
                   />
                 </div>
                 <span className="text-xs sm:text-sm text-gray-900 font-black mt-2.5">Dr. P. K. Rai</span>
