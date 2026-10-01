@@ -164,7 +164,7 @@ const triggerLoader = (targetUrlOrAction) => {
   };
 
   const curr = translator[lang];
-  const mainTitleText = lang === 'hi' ? 'डा0 प्रमोद कुमार राय' : 'Dr. Pramod Kumar Rai';
+  const mainTitleText = lang === 'hi' ? 'डा० प्रमोद कुमार राय' : 'Dr. Pramod Kumar Rai';
 
   return (
     <div id="home" className="min-h-screen flex flex-col bg-white text-gray-900 font-sans w-full overflow-x-hidden relative scroll-mt-24">
