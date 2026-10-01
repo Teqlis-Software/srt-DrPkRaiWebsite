@@ -190,7 +190,7 @@ export default function PhotosPage() {
         >
           <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
             <button
-              onClick={() => setLightboxImg(null)}
+            
               className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl cursor-pointer transition z-50"
             >
               ✕
@@ -199,7 +199,7 @@ export default function PhotosPage() {
               src={lightboxImg}
               alt="Fullscreen Zoom"
               className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border-4 border-white cursor-default"
-              onClick={(e) => e.stopPropagation()}
+             
             />
           </div>
         </div>
@@ -266,7 +266,7 @@ export default function PhotosPage() {
                     className="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 hover:border-[#FE0000] cursor-pointer transition space-y-1"
                   >
                     <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span className="font-bold text-gray-800">Dr. P. K. Rai EX MLA</span>
+                      <span className="font-bold text-gray-800"> Dr. P. K. Rai - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government</span>
                       <span>Just now</span>
                     </div>
                     <p className="text-xs text-gray-600">I have a question / कोई प्रश्न है?</p>
@@ -334,7 +334,7 @@ export default function PhotosPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-green-200">Contact Us</h3>
-                  <p className="text-xs text-white">Dr. P. K. Rai • Ex-MLA</p>
+                  <p className="text-xs text-white"> -  Dr. P. K. Rai - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government </p>
                 </div>
               </div>
               <button onClick={() => setContactModalOpen(false)} className="bg-white/25 text-white w-9 h-9 rounded-full flex items-center justify-center font-bold text-lg cursor-pointer transition">✕</button>
@@ -354,7 +354,7 @@ export default function PhotosPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-gray-200">
-                  <h4 className="font-extrabold text-[#FE0000] uppercase text-sm border-b pb-2">dr.p.k. rai</h4>
+                  <h4 className="font-extrabold text-[#FE0000] uppercase text-sm border-b pb-2"> Dr. P. K. Rai </h4>
                   <p className="text-gray-700 font-medium">Parmanand Ashram,paidleganj,kasia road,kalepur,Gorakhpur, Uttar Pradesh, India</p>
                   <div className="space-y-1 font-bold">
                     <p><a href="tel:9415905658" className="text-[#FE0000] hover:underline">9415905658</a></p>
@@ -435,7 +435,7 @@ export default function PhotosPage() {
                   Dr. P. K. Rai
                 </span>
                 <span className="block text-[8px] sm:text-[10px] font-bold text-green-100 uppercase tracking-widest mt-1">
-                  Ex-MLA (Seorahi / Tamkuhiraj)
+                  - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government
                 </span>
               </div>
             </Link>

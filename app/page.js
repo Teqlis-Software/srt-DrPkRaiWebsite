@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import {translator} from "./constants/languages.js"
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -112,17 +113,35 @@ export default function Home() {
     }
   };
 
-  const triggerLoader = (targetUrlOrAction) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      if (typeof targetUrlOrAction === 'function') {
-        targetUrlOrAction();
-      } else if (typeof targetUrlOrAction === 'string') {
-        window.location.href = targetUrlOrAction;
-      }
-    }, 250);
-  };
+const triggerLoader = (targetUrlOrAction) => {
+  setIsLoading(true);
+
+  setTimeout(() => {
+    // Always hide loader after the initial delay
+    setIsLoading(false);
+
+    // Scroll to page top
+    if (targetUrlOrAction === 'targetToTop') {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+      return;
+    }
+
+    // Execute callback function
+    if (typeof targetUrlOrAction === 'function') {
+      targetUrlOrAction();
+      return;
+    }
+
+    // Navigate to URL
+    if (typeof targetUrlOrAction === 'string') {
+      window.location.href = targetUrlOrAction;
+      return;
+    }
+  }, 250);
+};
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -144,153 +163,7 @@ export default function Home() {
     window.open(`https://wa.me/917521921824?text=${waMessage}`, '_blank');
   };
 
-  const content = {
-    hi: {
-      subtitle: "डॉ० पी० के० राय • पूर्व विधायक/पूर्व राज्यमंत्री तमकुहीराज विधानसभा",
-      desc: "समर्पित जननेता, वरिष्ठ ई.एन.टी. सर्जन और पूर्व विधायक जो जन कल्याण, ग्रामीण स्वास्थ्य और शिक्षा के लिए प्रतिबद्ध हैं।",
-      viewProfile: "विस्तृत परिचय देखें",
-      contactOffice: "कार्यालय संपर्क",
-      home: "होम",
-      about: "परिचय",
-      journey: "राजनीतिक जीवन",
-      photos: "फोटो",
-      contact: "संपर्क करें",
-      joinUs: "हमसे जुड़ें",
-      portalBadge: "आधिकारिक पोर्टल • पूर्व विधायक",
-      bioTitle: "संक्षिप्त परिचय एवं पारिवारिक पृष्ठभूमि",
-      basicInfo: "बुनियादी जानकारी",
-      familyBg: "पारिवारिक पृष्ठभूमि",
-      familyTitle: "पारिवारिक विवरण एवं संतान",
-      educationTitle: "शिक्षा एवं सरकारी सेवाएँ",
-      basicList: [
-        "नाम : डा0 प्रमोद कुमार राय ( डॉ० पी०के० राय)",
-        "उम्र-73 वर्ष",
-        "पिता : स्व० श्री परमानन्द राय ('स्वतंत्रता संग्राम सेनानी')",
-        "जन्म स्थान : ग्राम-पटखौली, पोस्ट-फाजिलनगर, जनपद-कुशीनगर (उ०प्र०)",
-        "पत्राचार का पता : गोरखपुर नर्सिंग होम, कसया रोड, पैडलेगंज गोरखपुर (273001)"
-      ],
-      familyList: [
-        "माता-पिता : दोनों स्वतंत्रता संग्राम सेनानी एवं बिहार में 35-40 वर्षों तक सदस्य विधान-सभा / विधान परिषद रहे।",
-        "बड़े भाई : स्व० रामायण राय (स्वतंत्रता संग्राम सेनानी, विधायक, मंत्री एवं देवरिया से सांसद रहे)।",
-        "पत्नी : डॉ० श्रीमती नीला राय शर्मा, (एम०एस०), पूर्व प्रोफेसर बी०आर०डी० मेडिकल कॉलेज, गोरखपुर।"
-      ],
-      childrenList: [
-        "1. डॉ० प्रियंका राय : प्रोफेसर सर्जरी राम मनोहर लोहिया इंस्टिट्यूट ऑफ़ मेडिकल साइंसेस, लखनऊ। पति - डॉ० आलोक श्रीवास्तव, प्रोफेसर यूरोलोजी राम मनोहर लोहिया इंस्टिट्यूट ऑफ़ मेडिकल साइंसेस, लखनऊ",
-        "2. अनुपमा राय (इंजीनियर) • पति - श्री विजय सिंह राठौर • पी०जी० जर्नलिज्म एवं मास कम्युनिकेशन"
-      ],
-      eduSub: "शैक्षिक योग्यता :",
-      eduDetails: "• एम०बी०बी०एस० - LLRM मेरठ\n• डी०एल०ओ० नाक, कान, गला रोग विशेषज्ञ - KGMC",
-      govSub: "सरकारी सेवा :",
-      govDetails: "• 1974 से 1996 तक पी०एम०एस० (प्रान्तीय चिकित्सा सेवा) - PHC परतावल, CHC तमकुहीराज, ई०एन०टी० सर्जन गोरखपुर सदर अस्पताल, वरिष्ठ ई०एन०टी० सर्जन बलरामपुर अस्पताल लखनऊ।\n• आई०एम०ए० गोरखपुर का सचिव एवं अध्यक्ष।\n• प्रदेश के 12000 सरकारी चिकित्सकों का पी०एम०एस० संघ उ०प्र० का निर्वाचित प्रदेश महामंत्री - प्रदेश अध्यक्ष एवं वर्तमान में प्रदेश संरक्षक।",
-      journeyDesc: "समाज और जनता की सेवा में दशकों का समर्पण",
-      journeyPoints: [
-        "राजनीतिक कर्मभूमिः विधान-सभा सेवरही / तमकुहीराज",
-        "राजनीतिक पृष्ठभूमिः स्वतंत्रता संग्राम सेनानी परिवार",
-        "राजनीतिक क्षेत्र : विधान-सभा फाजिलनगर / सेवरही",
-        "बड़े भाई स्व० रामायण राय स्वतंत्रता संग्राम सेनानी, विधायक, मंत्री एवं देवरिया से सांसद रहे।",
-        "वर्ष 1996 में बलरामपुर अस्पताल लखनऊ से वरिष्ठ ई०एन०टी०सर्जन का पद त्यागकर समाजवादी पार्टी से राजनीति की शुरुआत की और वर्ष 1996 में सेवरहीं विधान-सभा, कुशीनगर से चुनाव लड़कर हार गया उसके बाद पांच वर्षों तक लगातार क्षेत्र में ही रहा, नर्सिंग होम पर नहीं बैठा, प्रैक्टिस छोड़ दिया, पूर्णकालिक राजनितिक कार्यकर्ता के रूप में रहा एवं निःशुल्क चिकित्सा परामर्श शिविर के माध्यम से जनसेवा में लगा रहा | जन समस्या के लिये जन-आंदोलन किया।",
-        "वर्ष 1996 में नौकरी छोड़कर राजनीति में आने के बाद से जन सेवा के अलावा कोई व्यक्तिगत कार्य नही किया l",
-        "वर्ष 1996 से लगातार तमकुहीराज एवं फाजिलनगर के दूरस्थ क्षेत्र के पिछड़े एवं ग्रामीण इलाकों में निःशुल्क चिकित्सा शिविर एवं दवा वितरण का कार्य करता रहा एवं वर्तमान में भी कर रहा हूँ l",
-        "2002 से 2012 तक सेवरहीं विधान-सभा (वर्तमान में तमकुहीराज) 10 वर्षों तक 2 बार लगातार विधायक रहा।"
-      ],
-      journeyMiddle: [
-        "2002 से 2007 के बीच सदस्य लोक-लेखा समिति, सदस्य-एस०जी०पी०जी०आई० एवं सदस्य वन्य-जीव बोर्ड (उ०प्र०)",
-        "वर्ष 2004 में सी०पी०ए० (COMMON WEALTH PARLIAMENTRY ASSOCIATION) डेलिगेशन में - 5 यूरोपीय देशों क्रमश: डेनमार्क, स्पेन, रूस, लन्दन एवं पेरिस का दौरा किया।",
-        "प्रदेश के तीन विधायकों के विरुद्ध स्टिंग आपरेशन के आरोपों की जाँच हेतु विधान-सभा द्वारा गठित समिति, जिसमें मा० लक्ष्मीकांत बाजपेयी जी, मा० नरेन्द्र सिंह गौड़ जी जैसे सम्मानित सदस्यों की समिति का अध्यक्ष रहा।",
-        "वर्ष 2007 से 2012 तक सदन की अगली कतार में बैठकर विपक्ष की सशक्त भूमिका का निर्वाह किया साथ ही लगातार 4 वर्षों तक लोक-लेखा समिति के अध्यक्ष के पद पर रहते हुए कई महत्वपूर्ण कार्य किया |",
-        "2012 में समाजवादी पार्टी से चुनाव लड़ा एवं पार्टी के मूल मतों के बिखराव से चुनाव हार गया|",
-        "2012 में चुनाव हारने के बाद पिछड़े क्षेत्र में शिक्षा हेतु अपने गाँव में अपने जमीन पर और केवल अपने स्रोत से वर्ष 2014 में पी० के० स्नातकोत्तर महाविद्यालय की स्थापना किया, जिससे कि ग्रामीण क्षेत्र से छात्राओं को दूरस्थ ना जाना पड़े। इसमें लगभग 1800 छात्र-छात्राएं हैं, जिसमे ज्यादातर छात्राएं हैं। और विद्यालय की प्रबंधक डॉ० नीला राय शर्मा और मेरे द्वारा समय समय पर छात्र-छात्राओं का शिविर लगाकर स्वास्थ्य परिक्षण भी किया जाता है और जरुरतमंदों को आवश्यकतानुसार निःशुल्क दवा वितरण कार्य भी किया जाता है और सरकार की मंशानुसार इमानदारी से गुणवत्तापूर्ण शिक्षण चल रहा है और समय समय पर कार्यक्रमों के माध्यम से छात्रों को प्रोत्साहित भी किया जाता है वर्तमान मे विद्यालय प्रगति कर पी० के० स्नातकोत्तर महाविद्यालय हो गया है, जिस मे-"
-      ],
-      collegeSubjects: "विषय –\n• B.A. - हिन्दी, संस्कृत, इतिहास, समाजशास्त्र, शिक्षाशास्त्र, राजनीति शास्त्र, गृहविज्ञान\n• B.Com\n• M.Com\n• M.A. - हिन्दी, समाजशास्त्र, राजनीति विज्ञान, गृहविज्ञान\nमहाविद्यालय की प्रबंधक डॉ० नीला राय शर्मा जी महाविद्यालय के समस्त कार्यों और शिक्षण कार्यों का देखरेख करती हैं।",
-      journeyEnd: [
-        "2012 से 2017 तक राज्यमंत्री दर्जा प्राप्त, सामान्य प्रशासन, ग्राम्य विभाग l",
-        "2017 मे “सपा और कांग्रेस” गठबंधन के कारण टिकट से वंचित होने के कारण बागी होकर चुनाव लड़ा और 30000 वोट पाकर हार गया l",
-        "17 नवंबर 2017 को भाजपा की सदस्यता ग्रहण किया l",
-        "दो बार लगातार प्रदेश कार्य समिति का सदस्य रहा l",
-        "2017 से 2024 तक कोई जिम्मेदारी नहीं मिली l कोई चुनाव लड़ने का अवसर नहीं मिला, जब की भाजपा के हर कार्यक्रम मे कार्यकर्ता की तरह लगातार लगा रहा l",
-        "करोना काल मे 1 लाख पी० एम० केयर फंड मे तथा 50000 सी०एम० केयर फंड मे दिया l",
-        "राम जन्म भूमि तीर्थ क्षेत्र मे 1 लाख दिया l",
-        "समर्थकों के दबाव मे भाजपा से त्याग-पत्र देकर 28 मई 2024 को मा० अखिलेश यादव राष्ट्रीय अध्यक्ष के समक्ष समाजवादी पार्टी की सदस्यता ग्रहण किया और उसी दिन से समाजवादी पार्टी के कार्यों मे लगा हुआ हूँ l"
-      ],
-      photosTitle: "फोटो गैलरी",
-      seeAllPhotos: "सभी फोटो देखें ➔",
-      mulayamCaption: "माननीय मुलायम सिंह यादव जी के साथ",
-      akhileshCaption: "राष्ट्रीय अध्यक्ष अखिलेश यादव जी के साथ",
-      footerDesc: "उत्तर प्रदेश के ग्रामीण इलाकों के विकास और उत्थान के लिए समर्पित समाज सेवक, चिकित्सा पेशेवर और पूर्व विधायक।",
-      quickLinks: "त्वरित लिंक",
-      socialHead: "आधिकारिक सोशल मीडिया और मुख्यालय",
-      copyright: "कॉपीराइट © 2026 Dr. P. K. Rai (पूर्व विधायक) - सर्वाधिकार सुरक्षित।"
-    },
-    en: {
-      subtitle: "Dr. P. K. Rai • Ex-MLA/Former Minister of Uttar Pradesh Tamkuhiraj Assembly",
-      desc: "Dedicated Leader, Senior ENT Surgeon, and Ex-Legislator committed to public welfare, rural health, and education.",
-      viewProfile: "View Detailed Profile",
-      contactOffice: "Contact Office",
-      home: "Home",
-      about: "About",
-      journey: "Political Life",
-      photos: "Photos",
-      contact: "Contact Us",
-      joinUs: "Volunteer / Join Us",
-      portalBadge: "Official Portal • Ex-MLA",
-      bioTitle: "Brief Introduction & Family Background",
-      basicInfo: "Basic Information",
-      familyBg: "Family Background",
-      familyTitle: "Family Details & Children",
-      educationTitle: "Education & Government Services",
-      basicList: [
-        "Name : Dr. Pramod Kumar Rai (Dr. P. K. Rai)",
-        "Age : 73 Years",
-        "Father : Late Shri Parmanand Rai ('Freedom Fighter')",
-        "Birthplace : Village-Patkhauli, Post-Fazilnagar, District-Kushinagar (U.P.)",
-        "Correspondence Address : Gorakhpur Nursing Home, Kasya Road, Padleganj Gorakhpur (273001)"
-      ],
-      familyList: [
-        "Parents : Both freedom fighters and served for 35-40 years in Legislative Assembly / Council in Bihar.",
-        "Elder Brother : Late Ramayan Rai (Freedom Fighter, MLA, Minister & MP from Deoria).",
-        "Wife : Dr. Smt. Neela Rai Sharma (MS), Former Professor, BRD Medical College, Gorakhpur."
-      ],
-      childrenList: [
-        "1. Dr. Priyanka Rai : Professor of Surgery, Ram Manohar Lohia Institute of Medical Sciences, Lucknow. Spouse - Dr. Alok Srivastava, Professor of Urology, RMLIMS Lucknow",
-        "2. Anupama Rai (Engineer) • Spouse - Shri Vijay Singh Rathore • PG in Journalism & Mass Communication"
-      ],
-      eduSub: "Educational Qualification :",
-      eduDetails: "• MBBS - LLRM Meerut\n• DLO (ENT Specialist) - KGMC",
-      govSub: "Government Service :",
-      govDetails: "• PMS (Provincial Medical Service) from 1974 to 1996 - PHC Partawal, CHC Tamkuhiraj, ENT Surgeon Gorakhpur Sadar Hospital, Senior ENT Surgeon Balrampur Hospital Lucknow.\n• Secretary and President of IMA Gorakhpur.\n• Elected General Secretary, President, and current Patron of PMS Association UP representing 12,000 government doctors.",
-      journeyDesc: "Decades of dedicated public service",
-      journeyPoints: [
-        "Political Karmabhoomi: Assembly Seorahi / Tamkuhiraj",
-        "Political Background: Freedom Fighter Family",
-        "Served 2 consecutive terms as MLA for 10 years from Seorahi Assembly from 2002 to 2012.",
-        "Resigned as Senior ENT Surgeon from Balrampur Hospital Lucknow in 1996 and started politics with Samajwadi Party."
-      ],
-      journeyMiddle: [
-        "Member of Public Accounts Committee, SGPGAI, and Wildlife Board (UP) between 2002 and 2007.",
-        "Visited 5 European countries (Denmark, Spain, Russia, London, Paris) in 2004 as part of the CPA (Commonwealth Parliamentary Association) delegation.",
-        "Chaired the Assembly committee investigating allegations against three MLAs, featuring esteemed members like Laxmikant Bajpai and Narendra Singh Gaur.",
-        "Served in the front row of the opposition with strong leadership and chaired the Public Accounts Committee for 4 consecutive years (2007-2012).",
-        "Fought the 2012 election from Samajwadi Party and lost due to vote scattering.",
-        "Established PK Post Graduate College in 2014 in his village using personal funds to ensure rural girls didn't have to travel far for education, currently serving around 1800 students (mostly girls) alongside free health checkup camps and medication distribution by Dr. Neela Rai Sharma and himself."
-      ],
-      collegeSubjects: "Subjects –\n• B.A. - Hindi, Sanskrit, History, Sociology, Education, Political Science, Home Science\n• B.Com\n• M.Com\n• M.A. - Hindi, Sociology, Political Science, Home Science",
-      journeyEnd: [
-        "Accorded Minister of State status in General Administration & Rural Departments from 2012 to 2017.",
-        "Joined Bharatiya Janata Party (BJP) on November 17, 2017.",
-        "Resigned from BJP under supporters' pressure and rejoined Samajwadi Party in the presence of National President Akhilesh Yadav on May 28, 2024."
-      ],
-      photosTitle: "Photo Gallery",
-      seeAllPhotos: "See All Photos ➔",
-      mulayamCaption: "With Hon'ble Mulayam Singh Yadav Ji",
-      akhileshCaption: "With National President Akhilesh Yadav",
-      footerDesc: "Dedicated social worker, medical professional, and former legislator striving for the upliftment and development of the rural masses of Uttar Pradesh.",
-      quickLinks: "Quick Links",
-      socialHead: "Official Social Media & Headquarters",
-      copyright: "Copyright © 2026 Dr. P. K. Rai (Ex-MLA) - All Rights Reserved."
-    }
-  };
-
-  const curr = content[lang];
+  const curr = translator[lang];
   const mainTitleText = lang === 'hi' ? 'डा0 प्रमोद कुमार राय' : 'Dr. Pramod Kumar Rai';
 
   return (
@@ -318,7 +191,6 @@ export default function Home() {
           transform: translate(0, 0) scale(1);
         }
 
-        /* Static Heading Container Fixes (No Clipping / No Animation) */
         .fixed-heading-box {
           position: relative;
           width: 100%;
@@ -422,14 +294,14 @@ export default function Home() {
                     className="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 hover:border-[#FE0000] cursor-pointer transition space-y-1"
                   >
                     <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span className="font-bold text-gray-800">Dr. P. K. Rai EX MLA</span>
+                      <span className="font-bold text-gray-800">`</span>
                       <span>Just now</span>
                     </div>
                     <p className="text-xs text-gray-600">I have a question / कोई प्रश्न है?</p>
                   </div>
                 </>
               ) : (
-                <form 
+                <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     if (!visitorName.trim() || !visitorPhone.trim() || !visitorMsg.trim()) {
@@ -440,15 +312,15 @@ export default function Home() {
                     const body = encodeURIComponent(
                       `Name: ${visitorName}\nMobile: ${visitorPhone}\n\nMessage:\n${visitorMsg}`
                     );
-                    
+
                     window.location.href = `mailto:drpkr350@gmail.com?subject=${subject}&body=${body}`;
-                    
+
                     setVisitorName('');
                     setVisitorPhone('');
                     setVisitorMsg('');
                     setChatFormOpen(false);
                     setChatOpen(false);
-                  }} 
+                  }}
                   className="space-y-3"
                 >
                   <div className="text-xs font-bold text-[#FE0000] uppercase tracking-wider">Send Message via Gmail</div>
@@ -499,20 +371,20 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-green-200">Contact Us</h3>
-                  <p className="text-[10px] text-white">Dr. P. K. Rai • Ex-MLA</p>
+                  <p className="text-[10px] text-white"> "Dr. P. K. Rai - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government</p>
                 </div>
               </div>
               <button onClick={() => setContactModalOpen(false)} className="bg-white/25 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
             </div>
 
             <div className="p-6 space-y-6 text-gray-800 text-xs sm:text-sm overflow-y-auto flex-grow">
-              
+
               <div className="text-center space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-200">
                 <p className="font-bold text-black text-sm">Parmanand Ashram, paidleganj, kasia road, kalepur, Gorakhpur, Uttar Pradesh, India</p>
-                <a 
-                  href="https://wa.me/917521921824" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href="https://wa.me/917521921824"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center space-x-2 bg-[#25D366] hover:bg-green-600 text-white font-bold px-5 py-2.5 rounded-xl shadow transition text-xs cursor-pointer"
                 >
                   <span>🟢 Message us on WhatsApp</span>
@@ -610,16 +482,26 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-40 bg-[#FE0000] border-b-4 border-[#018B00] shadow-md w-full text-white">
         <div className="w-full px-4 sm:px-8 lg:px-12">
           <div className="flex justify-between items-center h-16 sm:h-20">
-            <Link href="/" onClick={() => triggerLoader(() => { })} className="flex items-center space-x-2.5 cursor-pointer">
+            {/* Header Logo Link with full client-side handling without reload */}
+            <Link
+              href="/"
+
+              className="flex items-center space-x-2.5 cursor-pointer"
+            >
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full overflow-hidden border-2 border-green-200 shadow-inner flex items-center justify-center">
-                <img src="/DrPkRaiProfile.jpg" alt="Logo" className="w-full h-full object-cover object-center cursor-pointer" onClick={(e) => { e.preventDefault(); setLightboxImg("/DrPkRaiProfile.jpg"); }} />
+                <img
+                  src="/DrPkRaiProfile.jpg"
+                  alt="Logo"
+                  className="w-full h-full object-cover object-center cursor-pointer"
+
+                />
               </div>
               <div>
                 <span className="block text-sm sm:text-lg font-black uppercase tracking-tight text-white leading-none">
                   Dr. P. K. Rai
                 </span>
                 <span className="block text-[8px] sm:text-[10px] font-bold text-green-100 uppercase tracking-widest mt-1">
-                  Ex-MLA (Seorahi / Tamkuhiraj)
+                  - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government
                 </span>
               </div>
             </Link>
@@ -687,20 +569,19 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-b from-white via-red-600 to-[#018B00] text-white py-12 sm:py-20 px-4 sm:px-8 w-full flex items-center justify-center overflow-hidden scroll-mt-24">
         <div className="w-full max-w-7xl mx-auto flex flex-col items-center">
-          
-          {/* Cycle Logo Container (scroll-anim-item & anim-top removed so it stays permanently visible) */}
+
           <div className="w-full flex items-center justify-center mb-6">
             <div className="cursor-default group">
-              <img 
-                src="/samajwadi.jpg" 
-                alt="Samajwadi" 
-                className="w-[120px] sm:w-[160px] md:w-[190px] h-auto object-contain rounded-xl shadow-lg border-2 border-white transition-all duration-700 group-hover:scale-105 group-hover:shadow-2xl" 
+              <img
+                src="/samajwadi.jpg"
+                alt="Samajwadi"
+                className="w-[120px] sm:w-[160px] md:w-[190px] h-auto object-contain rounded-xl shadow-lg border-2 border-white transition-all duration-700 group-hover:scale-105 group-hover:shadow-2xl"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center text-center md:text-left w-full">
-            
+
             <div className="md:col-span-4 flex justify-center scroll-anim-item anim-left">
               <div className="w-56 h-72 sm:w-72 sm:h-88 bg-white p-2.5 rounded-3xl shadow-2xl border-4 border-[#018B00] flex flex-col items-center justify-center transition-all duration-700 hover:scale-105 hover:shadow-green-500/50">
                 <div className="w-full h-full rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex items-center justify-center">
@@ -748,7 +629,6 @@ export default function Home() {
       <section id="biodata" className="w-full bg-white py-12 sm:py-16 px-4 sm:px-8 lg:px-12 scroll-mt-24">
         <div className="w-full max-w-7xl mx-auto space-y-8 sm:space-y-12">
 
-          {/* STATIC HEADER (No Animation) */}
           <div className="text-center fixed-heading-box">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">{curr.bioTitle}</h2>
             <div className="w-20 sm:w-24 h-1.5 bg-[#FE0000] mx-auto mt-3 rounded-full"></div>
@@ -838,8 +718,7 @@ export default function Home() {
       {/* Political Life (Journey) */}
       <section id="journey" className="w-full bg-gradient-to-b from-slate-50 via-red-50 to-green-50 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 border-y border-gray-200 scroll-mt-24">
         <div className="w-full max-w-6xl mx-auto space-y-6">
-          
-          {/* STATIC HEADER (No Animation) */}
+
           <div className="text-center mb-10 sm:mb-16 fixed-heading-box" style={{ minHeight: '6rem' }}>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">{curr.journey}</h2>
             <p className="text-[#018B00] font-bold mt-2 text-xs sm:text-base">{curr.journeyDesc}</p>
@@ -889,7 +768,7 @@ export default function Home() {
       </section>
 
       {/* Ghar Vapasi Video Section */}
-      <div 
+      <div
         ref={(node) => {
           if (!node) return;
           const observer = new IntersectionObserver(
@@ -909,16 +788,15 @@ export default function Home() {
         className="w-full bg-slate-100 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 border-t border-gray-200 scroll-mt-24"
       >
         <div className="w-full max-w-5xl mx-auto space-y-6 text-center">
-          
-          {/* STATIC HEADER (No Animation) */}
+
           <div className="fixed-heading-box" style={{ minHeight: '6rem' }}>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
               {lang === 'hi' ? 'घर वापसी' : 'Ghar Vapasi (Homecoming)'}
             </h2>
             <div className="w-20 h-1.5 bg-[#FE0000] mx-auto mt-2 rounded-full"></div>
             <p className="text-xs sm:text-sm text-gray-600 mt-2 font-bold">
-              {lang === 'hi' 
-                ? 'Dr. P. K. Rai - समाजवादी पार्टी में पुनरागमन और जनसभा का ऐतिहासिक क्षण' 
+              {lang === 'hi'
+                ? 'Dr. P. K. Rai - समाजवादी पार्टी में पुनरागमन और जनसभा का ऐतिहासिक क्षण'
                 : 'Dr. P. K. Rai - Historic moment of homecoming and public gathering in Samajwadi Party'}
             </p>
           </div>
@@ -934,10 +812,10 @@ export default function Home() {
           </div>
 
           <div className="pt-2">
-            <a 
-              href="https://youtu.be/SJpXFtko62o" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://youtu.be/SJpXFtko62o"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 bg-[#FE0000] hover:bg-red-700 text-white font-bold px-6 py-3 rounded-full text-xs sm:text-sm shadow-lg transition cursor-pointer"
             >
               <span>
@@ -951,8 +829,7 @@ export default function Home() {
       {/* Expanded Photo Preview Section */}
       <section className="w-full bg-white py-12 sm:py-16 px-4 sm:px-8 lg:px-12 scroll-mt-24">
         <div className="w-full max-w-7xl mx-auto">
-          
-          {/* STATIC HEADER (No Animation) */}
+
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 sm:mb-10">
             <div className="flex flex-col items-start justify-center" style={{ minHeight: '4rem' }}>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">{curr.photosTitle}</h2>
@@ -1021,7 +898,7 @@ export default function Home() {
           <div>
             <h4 className="text-base sm:text-lg font-black text-green-200 mb-3">{curr.quickLinks}</h4>
             <ul className="space-y-2 text-red-100">
-              <li><Link href="/" onClick={() => triggerLoader(() => { })} className="hover:text-white cursor-pointer">{curr.home}</Link></li>
+              <li><Link href="/" onClick={() => triggerLoader("targetToTop")} className="hover:text-white cursor-pointer">{curr.home}</Link></li>
               <li><Link href="/photos" onClick={() => triggerLoader(() => { })} className="hover:text-white cursor-pointer">{curr.photos}</Link></li>
               <li><button onClick={() => setContactModalOpen(true)} className="hover:text-white text-left cursor-pointer">{curr.contact}</button></li>
             </ul>
@@ -1034,7 +911,6 @@ export default function Home() {
             <p className="text-red-100 mb-4">
               <strong>Phone:</strong> <a href="tel:+919415905658" className="underline hover:text-green-200 cursor-pointer">+91 9415905658</a>
             </p>
-            {/* Real Social Icons Footer */}
             <div className="flex space-x-3 mt-3">
               <a href="https://www.instagram.com/drpkraisp?stkn=Zmh6bmVyczJzNG8z" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2 rounded-lg shadow hover:bg-gray-100 transition flex items-center justify-center cursor-pointer" title="Instagram">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
