@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import {translator} from "./constants/languages.js"
+import { translator } from "./constants/languages.js";
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -9,7 +9,7 @@ export default function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false); // Closed initially on reload
+  const [chatOpen, setChatOpen] = useState(false);
   const [chatFormOpen, setChatFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,7 +29,45 @@ export default function Home() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const photoList = Array.from({ length: 50 }, (_, i) => i + 1);
 
-  // Scroll-triggered dynamic positioning for body items (excluding static headers)
+  // जब कोई /photos पेज से #biodata या #journey पर आए तो सीधे उस सेक्शन पर स्मूथ स्क्रॉल कराए
+  useEffect(() => {
+    const handleHashScroll = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        setTimeout(() => {
+          const targetElement = document.querySelector(hash);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 150);
+      } else {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    handleHashScroll();
+    window.addEventListener('hashchange', handleHashScroll);
+
+    const savedLang = localStorage.getItem('dr_pk_rai_lang');
+    if (savedLang) {
+      setLang(savedLang);
+    }
+
+    const handleStorageChange = () => {
+      const updatedLang = localStorage.getItem('dr_pk_rai_lang');
+      if (updatedLang) {
+        setLang(updatedLang);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashScroll);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Scroll-triggered dynamic positioning
   useEffect(() => {
     const observerCallback = (entries) => {
       entries.forEach((entry) => {
@@ -70,24 +108,6 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleBodyScroll);
   }, []);
 
-  // Language persistence and global sync using localStorage & storage event
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    const savedLang = localStorage.getItem('dr_pk_rai_lang');
-    if (savedLang) {
-      setLang(savedLang);
-    }
-
-    const handleStorageChange = () => {
-      const updatedLang = localStorage.getItem('dr_pk_rai_lang');
-      if (updatedLang) {
-        setLang(updatedLang);
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
   const toggleLanguage = () => {
     const newLang = lang === 'hi' ? 'en' : 'hi';
     setLang(newLang);
@@ -113,35 +133,40 @@ export default function Home() {
     }
   };
 
-const triggerLoader = (targetUrlOrAction) => {
-  setIsLoading(true);
+  const triggerLoader = (targetUrlOrAction) => {
+    setIsLoading(true);
 
-  setTimeout(() => {
-    // Always hide loader after the initial delay
-    setIsLoading(false);
+    setTimeout(() => {
+      setIsLoading(false);
 
-    // Scroll to page top
-    if (targetUrlOrAction === 'targetToTop') {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-      return;
-    }
+      if (targetUrlOrAction === 'targetToTop') {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+        return;
+      }
 
-    // Execute callback function
-    if (typeof targetUrlOrAction === 'function') {
-      targetUrlOrAction();
-      return;
-    }
+      if (typeof targetUrlOrAction === 'function') {
+        targetUrlOrAction();
+        return;
+      }
 
-    // Navigate to URL
-    if (typeof targetUrlOrAction === 'string') {
-      window.location.href = targetUrlOrAction;
-      return;
-    }
-  }, 250);
-};
+      if (typeof targetUrlOrAction === 'string') {
+        if (targetUrlOrAction.startsWith('/#')) {
+          const hash = targetUrlOrAction.replace('/', '');
+          const el = document.querySelector(hash);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+            window.history.pushState(null, '', hash);
+            return;
+          }
+        }
+        window.location.href = targetUrlOrAction;
+        return;
+      }
+    }, 200);
+  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -279,7 +304,7 @@ const triggerLoader = (targetUrlOrAction) => {
               </button>
               <div className="text-center space-y-2 mt-1">
                 <h3 className="text-lg font-black">{curr.contact}</h3>
-                <div className="w-14 h-14 bg-white rounded-full mx-auto overflow-hidden border-2 border-white shadow-md flex items-center justify-center text-[#FE0000] font-black text-base">
+                <div className="w-14 h-14 bg-white rounded-full mx-auto overflow-hidden border-2 border-white shadow-md flex items-center justify-center text-[#FE0000] font-black text-base flex-shrink-0">
                   <img src="/DrPkRaiProfile.jpg" alt="Dr. P. K. Rai" className="w-full h-full object-cover object-center" />
                 </div>
               </div>
@@ -294,7 +319,7 @@ const triggerLoader = (targetUrlOrAction) => {
                     className="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 hover:border-[#FE0000] cursor-pointer transition space-y-1"
                   >
                     <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span className="font-bold text-gray-800">`</span>
+                      <span className="font-bold text-gray-800">Dr. P. K. Rai Office</span>
                       <span>Just now</span>
                     </div>
                     <p className="text-xs text-gray-600">I have a question / कोई प्रश्न है?</p>
@@ -365,20 +390,19 @@ const triggerLoader = (targetUrlOrAction) => {
               <div className="flex items-center space-x-3">
                 <div
                   onClick={() => setLightboxImg("/DrPkRaiProfile.jpg")}
-                  className="w-10 h-10 bg-white text-[#FE0000] rounded-full overflow-hidden flex items-center justify-center font-black text-xs shadow cursor-pointer border-2 border-white"
+                  className="w-10 h-10 bg-white text-[#FE0000] rounded-full overflow-hidden flex items-center justify-center font-black text-xs shadow cursor-pointer border-2 border-white flex-shrink-0"
                 >
                   <img src="/DrPkRaiProfile.jpg" alt="Dr. P. K. Rai" className="w-full h-full object-cover object-center" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-green-200">Contact Us</h3>
-                  <p className="text-[10px] text-white"> "Dr. P. K. Rai - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government</p>
+                  <p className="text-[10px] text-white leading-tight">Dr. P. K. Rai - Ex-MLA, Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government</p>
                 </div>
               </div>
               <button onClick={() => setContactModalOpen(false)} className="bg-white/25 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
             </div>
 
             <div className="p-6 space-y-6 text-gray-800 text-xs sm:text-sm overflow-y-auto flex-grow">
-
               <div className="text-center space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-200">
                 <p className="font-bold text-black text-sm">Parmanand Ashram, paidleganj, kasia road, kalepur, Gorakhpur, Uttar Pradesh, India</p>
                 <a
@@ -428,7 +452,6 @@ const triggerLoader = (targetUrlOrAction) => {
                   loading="lazy"
                 ></iframe>
               </div>
-
             </div>
 
             <div className="bg-gray-100 p-3 text-center border-t flex-shrink-0">
@@ -450,7 +473,7 @@ const triggerLoader = (targetUrlOrAction) => {
           >
             <div className="bg-[#FE0000] text-white p-5 flex justify-between items-center">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-white text-[#FE0000] rounded-full flex items-center justify-center font-black text-xs shadow">JOIN</div>
+                <div className="w-9 h-9 bg-white text-[#FE0000] rounded-full flex items-center justify-center font-black text-xs shadow flex-shrink-0">JOIN</div>
                 <h3 className="text-base font-bold">{curr.joinUs}</h3>
               </div>
               <button onClick={() => setJoinModalOpen(false)} className="bg-white/25 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
@@ -480,36 +503,34 @@ const triggerLoader = (targetUrlOrAction) => {
 
       {/* Fixed Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-[#FE0000] border-b-4 border-[#018B00] shadow-md w-full text-white">
-        <div className="w-full px-4 sm:px-8 lg:px-12">
+        <div className="w-full px-3 sm:px-8 lg:px-12">
           <div className="flex justify-between items-center h-16 sm:h-20">
-            {/* Header Logo Link with full client-side handling without reload */}
             <Link
               href="/"
-
-              className="flex items-center space-x-2.5 cursor-pointer"
+              onClick={() => scrollToTop()}
+              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer min-w-0 pr-2"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full overflow-hidden border-2 border-green-200 shadow-inner flex items-center justify-center">
+              <div className="w-10 h-10 min-w-[2.5rem] sm:w-12 sm:h-12 sm:min-w-[3rem] bg-white rounded-full overflow-hidden border-2 border-green-200 shadow-md flex items-center justify-center flex-shrink-0">
                 <img
                   src="/DrPkRaiProfile.jpg"
                   alt="Logo"
-                  className="w-full h-full object-cover object-center cursor-pointer"
-
+                  className="w-full h-full object-cover object-center"
                 />
               </div>
-              <div>
-                <span className="block text-sm sm:text-lg font-black uppercase tracking-tight text-white leading-none">
+              <div className="min-w-0 flex flex-col justify-center">
+                <span className="block text-sm sm:text-lg font-black uppercase tracking-tight text-white leading-tight truncate">
                   Dr. P. K. Rai
                 </span>
-                <span className="block text-[8px] sm:text-[10px] font-bold text-green-100 uppercase tracking-widest mt-1">
-                  - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government
+                <span className="block text-[8px] sm:text-[10px] font-bold text-green-100 uppercase tracking-tight sm:tracking-widest leading-tight truncate mt-0.5">
+                  Ex-MLA, Tamkuhiraj Assembly / Former Minister
                 </span>
               </div>
             </Link>
 
             <nav className="hidden md:flex space-x-4 lg:space-x-6 font-bold text-xs lg:text-sm text-white items-center">
-              <Link href="/" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 cursor-pointer">{curr.home}</Link>
-              <Link href="/#biodata" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 cursor-pointer">{curr.about}</Link>
-              <Link href="/#journey" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 cursor-pointer">{curr.journey}</Link>
+              <button onClick={() => triggerLoader('targetToTop')} className="hover:text-green-200 cursor-pointer">{curr.home}</button>
+              <button onClick={() => triggerLoader('/#biodata')} className="hover:text-green-200 cursor-pointer">{curr.about}</button>
+              <button onClick={() => triggerLoader('/#journey')} className="hover:text-green-200 cursor-pointer">{curr.journey}</button>
               <Link href="/photos" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 cursor-pointer">{curr.photos}</Link>
               <button onClick={() => setContactModalOpen(true)} className="hover:text-green-200 cursor-pointer">{curr.contact}</button>
               <button onClick={() => setJoinModalOpen(true)} className="hover:text-green-200 cursor-pointer">{curr.joinUs}</button>
@@ -530,7 +551,7 @@ const triggerLoader = (targetUrlOrAction) => {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-white p-2 bg-black/20 rounded-xl text-xl cursor-pointer"
+              className="md:hidden text-white p-2 bg-black/20 rounded-xl text-xl cursor-pointer flex-shrink-0"
             >
               {mobileMenuOpen ? '✕' : '☰'}
             </button>
@@ -540,9 +561,9 @@ const triggerLoader = (targetUrlOrAction) => {
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
           <div className="fixed inset-x-0 top-16 sm:top-20 bg-[#FE0000] z-40 px-6 py-6 space-y-4 font-bold text-lg shadow-2xl flex flex-col border-b-4 border-[#018B00]">
-            <Link href="/" onClick={() => { setMobileMenuOpen(false); }} className="hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">🏠 {curr.home}</Link>
-            <Link href="/#biodata" onClick={() => { setMobileMenuOpen(false); }} className="hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">ℹ️ {curr.about}</Link>
-            <Link href="/#journey" onClick={() => { setMobileMenuOpen(false); }} className="hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">🗺️ {curr.journey}</Link>
+            <button onClick={() => { setMobileMenuOpen(false); triggerLoader('targetToTop'); }} className="text-left hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">🏠 {curr.home}</button>
+            <button onClick={() => { setMobileMenuOpen(false); triggerLoader('/#biodata'); }} className="text-left hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">ℹ️ {curr.about}</button>
+            <button onClick={() => { setMobileMenuOpen(false); triggerLoader('/#journey'); }} className="text-left hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">🗺️ {curr.journey}</button>
             <Link href="/photos" onClick={() => { setMobileMenuOpen(false); }} className="hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">🖼️ {curr.photos}</Link>
             <button onClick={() => { setMobileMenuOpen(false); setContactModalOpen(true); }} className="text-left hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">📞 {curr.contact}</button>
             <button onClick={() => { setMobileMenuOpen(false); setJoinModalOpen(true); }} className="text-left hover:text-green-200 pb-2 cursor-pointer">🤝 {curr.joinUs}</button>
@@ -612,9 +633,9 @@ const triggerLoader = (targetUrlOrAction) => {
                 {curr.desc}
               </p>
               <div className="pt-2 flex flex-wrap justify-center md:justify-start gap-3 sm:gap-4">
-                <a href="#biodata" className="bg-white text-[#FE0000] font-bold px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm shadow-lg cursor-pointer transition-all duration-500 hover:scale-105 hover:bg-gray-100">
+                <button onClick={() => triggerLoader('/#biodata')} className="bg-white text-[#FE0000] font-bold px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm shadow-lg cursor-pointer transition-all duration-500 hover:scale-105 hover:bg-gray-100">
                   {curr.viewProfile}
-                </a>
+                </button>
                 <button onClick={() => setContactModalOpen(true)} className="bg-black/30 border-2 border-white text-white font-bold px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm cursor-pointer transition-all duration-500 hover:scale-105 hover:bg-black/50">
                   {curr.contactOffice}
                 </button>
@@ -642,7 +663,9 @@ const triggerLoader = (targetUrlOrAction) => {
               </h3>
               <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed">
                 {curr.basicList.map((item, idx) => (
-                  <li key={idx} className={idx % 3 === 0 ? 'text-[#FE0000]' : idx % 3 === 1 ? 'text-[#018B00]' : 'text-black'}>• {item}</li>
+                  <li key={idx} className={idx % 3 === 0 ? 'text-[#FE0000]' : idx % 3 === 1 ? 'text-[#018B00]' : 'text-black'}>
+                    {item}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -653,7 +676,9 @@ const triggerLoader = (targetUrlOrAction) => {
               </h3>
               <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed">
                 {curr.familyList.map((item, idx) => (
-                  <li key={idx} className={idx % 3 === 0 ? 'text-[#018B00]' : idx % 3 === 1 ? 'text-black' : 'text-[#FE0000]'}>• {item}</li>
+                  <li key={idx} className={idx % 3 === 0 ? 'text-[#018B00]' : idx % 3 === 1 ? 'text-black' : 'text-[#FE0000]'}>
+                    {item}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -664,7 +689,9 @@ const triggerLoader = (targetUrlOrAction) => {
               </h3>
               <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed">
                 {curr.childrenList.map((item, idx) => (
-                  <li key={idx} className={idx % 2 === 0 ? 'text-black' : 'text-[#018B00]'}>• {item}</li>
+                  <li key={idx} className={idx % 2 === 0 ? 'text-black' : 'text-[#018B00]'}>
+                    {item}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -732,7 +759,7 @@ const triggerLoader = (targetUrlOrAction) => {
                 className={`scroll-anim-item ${idx % 2 === 0 ? 'anim-left' : 'anim-right'} p-6 rounded-3xl shadow-lg border-2 bg-white transition hover:shadow-xl ${idx % 3 === 0 ? 'border-[#FE0000] text-[#FE0000]' : idx % 3 === 1 ? 'border-[#018B00] text-[#018B00]' : 'border-black text-black'
                   } font-bold text-xs sm:text-sm leading-relaxed`}
               >
-                <p>• {point}</p>
+                <p>{point}</p>
               </div>
             ))}
           </div>
@@ -744,7 +771,7 @@ const triggerLoader = (targetUrlOrAction) => {
                 className={`scroll-anim-item ${idx % 2 === 0 ? 'anim-left' : 'anim-right'} p-6 rounded-3xl shadow-lg border-2 bg-white transition hover:shadow-xl ${idx % 2 === 0 ? 'border-black text-black' : 'border-[#FE0000] text-[#FE0000]'
                   } font-bold text-xs sm:text-sm leading-relaxed`}
               >
-                <p>• {point}</p>
+                <p>{point}</p>
               </div>
             ))}
           </div>
@@ -760,7 +787,7 @@ const triggerLoader = (targetUrlOrAction) => {
                 className={`scroll-anim-item ${idx % 2 === 0 ? 'anim-right' : 'anim-left'} p-6 rounded-3xl shadow-lg border-2 bg-white transition hover:shadow-xl ${idx % 3 === 0 ? 'border-black text-black' : idx % 3 === 1 ? 'border-[#FE0000] text-[#FE0000]' : 'border-[#018B00] text-[#018B00]'
                   } font-bold text-xs sm:text-sm leading-relaxed`}
               >
-                <p>• {point}</p>
+                <p>{point}</p>
               </div>
             ))}
           </div>
@@ -831,20 +858,22 @@ const triggerLoader = (targetUrlOrAction) => {
         <div className="w-full max-w-7xl mx-auto">
 
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 sm:mb-10">
-            <div className="flex flex-col items-start justify-center" style={{ minHeight: '4rem' }}>
+            <div className="flex flex-col items-start justify-center scroll-anim-item anim-left" style={{ minHeight: '4rem' }}>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">{curr.photosTitle}</h2>
               <div className="w-16 sm:w-20 h-1.5 bg-[#018B00] mt-2 rounded-full"></div>
             </div>
-            <Link
-              href="/photos"
-              onClick={() => triggerLoader(() => { })}
-              className="mt-4 md:mt-0 bg-[#FE0000] hover:bg-red-700 text-white font-bold px-5 sm:px-6 py-2.5 rounded-full shadow text-xs sm:text-sm transition cursor-pointer"
-            >
-              {curr.seeAllPhotos}
-            </Link>
+            <div className="scroll-anim-item anim-right mt-4 md:mt-0">
+              <Link
+                href="/photos"
+                onClick={() => triggerLoader(() => { })}
+                className="inline-block bg-[#FE0000] hover:bg-red-700 text-white font-bold px-5 sm:px-6 py-2.5 rounded-full shadow text-xs sm:text-sm transition cursor-pointer"
+              >
+                {curr.seeAllPhotos}
+              </Link>
+            </div>
           </div>
 
-          <div className="relative flex items-center">
+          <div className="relative flex items-center scroll-anim-item anim-bottom">
             {canScrollLeft && (
               <button
                 onClick={() => scrollGallery('left')}
@@ -889,21 +918,21 @@ const triggerLoader = (targetUrlOrAction) => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#FE0000] text-white border-t-4 border-[#018B00] w-full font-bold">
+      <footer className="bg-[#FE0000] text-white border-t-4 border-[#018B00] w-full font-bold overflow-hidden">
         <div className="w-full px-6 sm:px-10 lg:px-12 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-xs sm:text-sm">
-          <div>
+          <div className="scroll-anim-item anim-left">
             <h3 className="text-xl sm:text-2xl font-black text-white mb-3">Dr. P. K. Rai</h3>
             <p className="text-red-100 leading-relaxed">{curr.footerDesc}</p>
           </div>
-          <div>
+          <div className="scroll-anim-item anim-bottom">
             <h4 className="text-base sm:text-lg font-black text-green-200 mb-3">{curr.quickLinks}</h4>
             <ul className="space-y-2 text-red-100">
-              <li><Link href="/" onClick={() => triggerLoader("targetToTop")} className="hover:text-white cursor-pointer">{curr.home}</Link></li>
+              <li><button onClick={() => triggerLoader('targetToTop')} className="hover:text-white cursor-pointer text-left">{curr.home}</button></li>
               <li><Link href="/photos" onClick={() => triggerLoader(() => { })} className="hover:text-white cursor-pointer">{curr.photos}</Link></li>
               <li><button onClick={() => setContactModalOpen(true)} className="hover:text-white text-left cursor-pointer">{curr.contact}</button></li>
             </ul>
           </div>
-          <div>
+          <div className="scroll-anim-item anim-right">
             <h4 className="text-base sm:text-lg font-black text-green-200 mb-3">{curr.socialHead}</h4>
             <p className="text-red-100 leading-relaxed mb-3">
               Parmanand Ashram, Padleganj, Kasya Road, Kalepur, Gorakhpur, Uttar Pradesh, 273001

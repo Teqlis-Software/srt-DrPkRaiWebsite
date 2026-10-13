@@ -4,15 +4,14 @@ import Link from 'next/link';
 
 export default function PhotosPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [lang, setLang] = useState('hi'); // Default Hindi on reload or direct link
+  const [lang, setLang] = useState('hi');
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [contactModalOpen, setContactModalOpen] = useState(false); // Contact modal integrated
-  const [joinModalOpen, setJoinModalOpen] = useState(false);       // Join Us modal integrated
-  const [chatOpen, setChatOpen] = useState(false);               // Opens on scroll
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [chatFormOpen, setChatFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Lightbox Modal state for full screen photo view
   const [lightboxImg, setLightboxImg] = useState(null);
 
   const [visitorName, setVisitorName] = useState('');
@@ -24,10 +23,21 @@ export default function PhotosPage() {
   const [joinAssembly, setJoinAssembly] = useState('तमकुहीराज विधानसभा');
   const [joinDistrict, setJoinDistrict] = useState('');
 
-  // 50 Photos list for complete gallery view
-  const photoList = Array.from({ length: 50 }, (_, i) => i + 1);
+  const TOTAL_PHOTOS = 100;
+  const photoList = Array.from({ length: TOTAL_PHOTOS }, (_, i) => i + 1);
 
-  // Scroll-triggered dynamic positioning: Animates strictly when scrolling into view, remains static otherwise
+  // रीलोड होने पर केवल तभी टॉप पर रहे जब कोई हैश न हो
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+      }
+      if (!window.location.hash) {
+        window.scrollTo(0, 0);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const observerCallback = (entries) => {
       entries.forEach((entry) => {
@@ -54,7 +64,6 @@ export default function PhotosPage() {
     };
   }, []);
 
-  // Open chat only when user scrolls down
   useEffect(() => {
     const handleScrollTrigger = () => {
       if (window.scrollY > 80) {
@@ -66,9 +75,7 @@ export default function PhotosPage() {
     return () => window.removeEventListener('scroll', handleScrollTrigger);
   }, []);
 
-  // Language persistence and global sync using localStorage & storage event
   useEffect(() => {
-    window.scrollTo(0, 0);
     const savedLang = localStorage.getItem('dr_pk_rai_lang');
     if (savedLang) {
       setLang(savedLang);
@@ -103,16 +110,13 @@ export default function PhotosPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const triggerLoader = (targetUrlOrAction) => {
+  // सेक्शन हैश लिंक को परफेक्टली लोड कराने वाला फंक्शन
+  const navigateToSection = (targetUrl) => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      if (typeof targetUrlOrAction === 'function') {
-        targetUrlOrAction();
-      } else if (typeof targetUrlOrAction === 'string') {
-        window.location.href = targetUrlOrAction;
-      }
-    }, 250);
+      window.location.href = targetUrl;
+    }, 150);
   };
 
   const scrollToTop = () => {
@@ -163,7 +167,6 @@ export default function PhotosPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans w-full overflow-x-hidden relative">
 
-      {/* Directional Scroll Animations: Moves only during scroll intersection, stays rock-solid static otherwise */}
       <style jsx>{`
         .scroll-anim-item {
           opacity: 0;
@@ -190,7 +193,7 @@ export default function PhotosPage() {
         >
           <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
             <button
-            
+              onClick={() => setLightboxImg(null)}
               className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl cursor-pointer transition z-50"
             >
               ✕
@@ -199,7 +202,7 @@ export default function PhotosPage() {
               src={lightboxImg}
               alt="Fullscreen Zoom"
               className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border-4 border-white cursor-default"
-             
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
@@ -216,7 +219,7 @@ export default function PhotosPage() {
 
       {/* Floating Language Switcher */}
       <button
-        onClick={() => triggerLoader(toggleLanguage)}
+        onClick={() => toggleLanguage()}
         className="fixed bottom-6 left-6 z-40 bg-[#018B00] hover:bg-green-700 text-white font-extrabold px-5 py-2.5 rounded-full shadow-2xl border-2 border-white transition flex items-center space-x-2 text-sm cursor-pointer"
       >
         <span>🌐 {lang === 'hi' ? 'English' : 'हिंदी'}</span>
@@ -231,7 +234,7 @@ export default function PhotosPage() {
         </button>
       )}
 
-      {/* Floating Chat Bubble Widget - Opens smoothly only on scroll */}
+      {/* Floating Chat Bubble Widget */}
       <div className="fixed bottom-5 right-5 z-45">
         {!chatOpen ? (
           <button
@@ -251,7 +254,7 @@ export default function PhotosPage() {
               </button>
               <div className="text-center space-y-2 mt-1">
                 <h3 className="text-lg font-black">{curr.contact}</h3>
-                <div className="w-14 h-14 bg-white rounded-full mx-auto overflow-hidden border-2 border-white shadow-md flex items-center justify-center text-[#FE0000] font-black text-base">
+                <div className="w-14 h-14 bg-white rounded-full mx-auto overflow-hidden border-2 border-white shadow-md flex items-center justify-center text-[#FE0000] font-black text-base flex-shrink-0">
                   <img src="/DrPkRaiProfile.jpg" alt="Dr. P. K. Rai" className="w-full h-full object-cover object-center" />
                 </div>
               </div>
@@ -266,7 +269,7 @@ export default function PhotosPage() {
                     className="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 hover:border-[#FE0000] cursor-pointer transition space-y-1"
                   >
                     <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span className="font-bold text-gray-800"> Dr. P. K. Rai - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government</span>
+                      <span className="font-bold text-gray-800">Dr. P. K. Rai Office</span>
                       <span>Just now</span>
                     </div>
                     <p className="text-xs text-gray-600">I have a question / कोई प्रश्न है?</p>
@@ -323,18 +326,18 @@ export default function PhotosPage() {
         )}
       </div>
 
-      {/* Contact Modal Popup with Complete Details */}
+      {/* Contact Modal Popup */}
       {contactModalOpen && (
         <div onClick={() => setContactModalOpen(false)} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer">
           <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border-4 border-[#FE0000] cursor-default max-h-[90vh] flex flex-col scroll-anim-item anim-scale in-view">
             <div className="bg-[#FE0000] text-white p-6 flex justify-between items-center flex-shrink-0">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-white text-[#FE0000] rounded-full overflow-hidden flex items-center justify-center font-black text-xs shadow cursor-pointer border-2 border-white">
+                <div className="w-12 h-12 bg-white text-[#FE0000] rounded-full overflow-hidden flex items-center justify-center font-black text-xs shadow cursor-pointer border-2 border-white flex-shrink-0">
                   <img src="/DrPkRaiProfile.jpg" alt="Dr. P. K. Rai" className="w-full h-full object-cover object-center" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-green-200">Contact Us</h3>
-                  <p className="text-xs text-white"> -  Dr. P. K. Rai - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government </p>
+                  <p className="text-xs text-white">Dr. P. K. Rai - Ex-MLA, Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government</p>
                 </div>
               </div>
               <button onClick={() => setContactModalOpen(false)} className="bg-white/25 text-white w-9 h-9 rounded-full flex items-center justify-center font-bold text-lg cursor-pointer transition">✕</button>
@@ -394,7 +397,7 @@ export default function PhotosPage() {
           <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border-4 border-[#FE0000] cursor-default scroll-anim-item anim-scale in-view">
             <div className="bg-[#FE0000] text-white p-5 flex justify-between items-center">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-white text-[#FE0000] rounded-full flex items-center justify-center font-black text-xs shadow">JOIN</div>
+                <div className="w-9 h-9 bg-white text-[#FE0000] rounded-full flex items-center justify-center font-black text-xs shadow flex-shrink-0">JOIN</div>
                 <h3 className="text-base font-bold">{curr.joinUs}</h3>
               </div>
               <button onClick={() => setJoinModalOpen(false)} className="bg-white/25 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
@@ -422,30 +425,34 @@ export default function PhotosPage() {
         </div>
       )}
 
-      {/* Header with Navigation including Contact and Join Us */}
+      {/* Header with Navigation */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-[#FE0000] border-b-4 border-[#018B00] shadow-md w-full text-white">
-        <div className="w-full px-4 sm:px-10 lg:px-16">
-          <div className="flex justify-between items-center h-20">
-            <Link href="/" onClick={() => triggerLoader(() => { })} className="flex items-center space-x-3 cursor-pointer">
-              <div className="w-12 h-12 bg-white rounded-full overflow-hidden border-2 border-green-200 shadow-inner flex items-center justify-center">
-                <img src="/DrPkRaiProfile.jpg" alt="Logo" className="w-full h-full object-cover object-center cursor-pointer" onClick={(e) => { e.preventDefault(); setLightboxImg("/DrPkRaiProfile.jpg"); }} />
+        <div className="w-full px-3 sm:px-10 lg:px-16">
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <button onClick={() => navigateToSection('/')} className="flex items-center space-x-2 sm:space-x-3 cursor-pointer min-w-0 pr-2 text-left">
+              <div className="w-10 h-10 min-w-[2.5rem] sm:w-12 sm:h-12 sm:min-w-[3rem] bg-white rounded-full overflow-hidden border-2 border-green-200 shadow-md flex items-center justify-center flex-shrink-0">
+                <img 
+                  src="/DrPkRaiProfile.jpg" 
+                  alt="Logo" 
+                  className="w-full h-full object-cover object-center" 
+                />
               </div>
-              <div>
-                <span className="block text-base sm:text-xl font-black uppercase tracking-tight text-white leading-none">
+              <div className="min-w-0 flex flex-col justify-center">
+                <span className="block text-sm sm:text-xl font-black uppercase tracking-tight text-white leading-tight truncate">
                   Dr. P. K. Rai
                 </span>
-                <span className="block text-[8px] sm:text-[10px] font-bold text-green-100 uppercase tracking-widest mt-1">
-                  - Ex-MLA,Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government
+                <span className="block text-[8px] sm:text-[10px] font-bold text-green-100 uppercase tracking-tight sm:tracking-widest leading-tight truncate mt-0.5">
+                  Ex-MLA, Tamkuhiraj Assembly / Former Minister
                 </span>
               </div>
-            </Link>
+            </button>
 
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex space-x-5 font-bold text-sm text-white items-center">
-              <Link href="/" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 transition-colors cursor-pointer">{curr.home}</Link>
-              <Link href="/#biodata" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 transition-colors cursor-pointer">{curr.about}</Link>
-              <Link href="/#journey" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 transition-colors cursor-pointer">{curr.journey}</Link>
-              <Link href="/photos" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 transition-colors cursor-pointer">{curr.photos}</Link>
+              <button onClick={() => navigateToSection('/')} className="hover:text-green-200 transition-colors cursor-pointer">{curr.home}</button>
+              <button onClick={() => navigateToSection('/#biodata')} className="hover:text-green-200 transition-colors cursor-pointer">{curr.about}</button>
+              <button onClick={() => navigateToSection('/#journey')} className="hover:text-green-200 transition-colors cursor-pointer">{curr.journey}</button>
+              <button onClick={() => navigateToSection('/photos')} className="hover:text-green-200 transition-colors cursor-pointer">{curr.photos}</button>
               <button onClick={() => setContactModalOpen(true)} className="hover:text-green-200 transition-colors focus:outline-none cursor-pointer">{curr.contact}</button>
               <button onClick={() => setJoinModalOpen(true)} className="hover:text-green-200 transition-colors focus:outline-none font-bold cursor-pointer">{curr.joinUs}</button>
             </nav>
@@ -465,7 +472,7 @@ export default function PhotosPage() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-white focus:outline-none p-2.5 bg-black/20 hover:bg-black/40 rounded-xl text-2xl transition flex items-center justify-center shadow z-50 cursor-pointer"
+              className="md:hidden text-white focus:outline-none p-2 bg-black/20 hover:bg-black/40 rounded-xl text-xl transition flex items-center justify-center shadow z-50 cursor-pointer flex-shrink-0"
             >
               {mobileMenuOpen ? '✕' : '☰'}
             </button>
@@ -474,11 +481,11 @@ export default function PhotosPage() {
 
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 top-20 bg-[#FE0000] z-40 px-6 py-6 space-y-4 font-bold text-lg shadow-2xl flex flex-col justify-start overflow-y-auto">
-            <Link href="/" onClick={() => { setMobileMenuOpen(false); triggerLoader(() => { }); }} className="block hover:text-green-200 border-b border-red-600 pb-3 cursor-pointer">🏠 {curr.home}</Link>
-            <Link href="/#biodata" onClick={() => { setMobileMenuOpen(false); triggerLoader(() => { }); }} className="block hover:text-green-200 border-b border-red-600 pb-3 cursor-pointer">ℹ️ {curr.about}</Link>
-            <Link href="/#journey" onClick={() => { setMobileMenuOpen(false); triggerLoader(() => { }); }} className="block hover:text-green-200 border-b border-red-600 pb-3 cursor-pointer">🗺️ {curr.journey}</Link>
-            <Link href="/photos" onClick={() => { setMobileMenuOpen(false); triggerLoader(() => { }); }} className="block hover:text-green-200 border-b border-red-600 pb-3 cursor-pointer">🖼️ {curr.photos}</Link>
+          <div className="fixed inset-0 top-16 sm:top-20 bg-[#FE0000] z-40 px-6 py-6 space-y-4 font-bold text-lg shadow-2xl flex flex-col justify-start overflow-y-auto">
+            <button onClick={() => { setMobileMenuOpen(false); navigateToSection('/'); }} className="block text-left hover:text-green-200 border-b border-red-600 pb-3 cursor-pointer">🏠 {curr.home}</button>
+            <button onClick={() => { setMobileMenuOpen(false); navigateToSection('/#biodata'); }} className="block text-left hover:text-green-200 border-b border-red-600 pb-3 cursor-pointer">ℹ️ {curr.about}</button>
+            <button onClick={() => { setMobileMenuOpen(false); navigateToSection('/#journey'); }} className="block text-left hover:text-green-200 border-b border-red-600 pb-3 cursor-pointer">🗺️ {curr.journey}</button>
+            <button onClick={() => { setMobileMenuOpen(false); navigateToSection('/photos'); }} className="block text-left hover:text-green-200 border-b border-red-600 pb-3 cursor-pointer">🖼️ {curr.photos}</button>
             <button onClick={() => { setMobileMenuOpen(false); setContactModalOpen(true); }} className="block text-left hover:text-green-200 border-b border-red-600 pb-3 w-full cursor-pointer">📞 {curr.contact}</button>
             <button onClick={() => { setMobileMenuOpen(false); setJoinModalOpen(true); }} className="block text-left hover:text-green-200 pb-3 w-full cursor-pointer">🤝 {curr.joinUs}</button>
 
@@ -498,15 +505,15 @@ export default function PhotosPage() {
         )}
       </header>
 
-      <div className="h-20"></div>
+      <div className="h-16 sm:h-20"></div>
 
-      <section className="bg-gradient-to-r from-[#FE0000] to-[#018B00] text-white py-16 px-6 text-center w-full">
-        <h1 className="text-4xl font-black min-h-[50px]">{curr.galleryTitle}</h1>
-        <p className="text-sm mt-2 text-gray-100 font-bold">{curr.gallerySubtitle}</p>
+      <section className="bg-gradient-to-r from-[#FE0000] to-[#018B00] text-white py-12 sm:py-16 px-6 text-center w-full">
+        <h1 className="text-3xl sm:text-4xl font-black min-h-[50px]">{curr.galleryTitle}</h1>
+        <p className="text-xs sm:text-sm mt-2 text-gray-100 font-bold">{curr.gallerySubtitle}</p>
       </section>
 
-      {/* Photos Page Grid - Full Photos Display with auto height and full image fit */}
-      <section className="w-full max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 flex-grow">
+      {/* Photos Page Grid */}
+      <section className="w-full max-w-7xl mx-auto py-12 sm:py-16 px-4 sm:px-6 lg:px-8 flex-grow">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {photoList.map((item, idx) => (
             <div
@@ -514,7 +521,7 @@ export default function PhotosPage() {
               onClick={() => setLightboxImg(`/drpkrai${item}.jpg`)}
               className={`bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden shadow-lg p-4 cursor-pointer hover:shadow-xl transition group flex flex-col justify-between scroll-anim-item ${idx % 2 === 0 ? 'anim-left' : 'anim-right'}`}
             >
-              <div className="w-full bg-red/5 rounded-xl flex items-center justify-center border border-gray-300 overflow-hidden relative ">
+              <div className="w-full bg-red/5 rounded-xl flex items-center justify-center border border-gray-300 overflow-hidden relative">
                 <img
                   src={`/drpkrai${item}.jpg`}
                   alt={`Dr. P. K. Rai ${item}`}
@@ -524,13 +531,12 @@ export default function PhotosPage() {
                   🔍 Zoom Fullscreen
                 </div>
               </div>
-
             </div>
           ))}
         </div>
       </section>
 
-      {/* Footer with Contact Us & Photos Links */}
+      {/* Footer */}
       <footer className="bg-[#FE0000] text-white border-t-4 border-[#018B00] w-full font-bold">
         <div className="w-full px-6 sm:px-10 lg:px-16 py-12 grid grid-cols-1 md:grid-cols-3 gap-10 scroll-anim-item anim-bottom">
           <div>
@@ -540,8 +546,8 @@ export default function PhotosPage() {
           <div>
             <h4 className="text-lg font-black text-green-200 mb-4">{curr.quickLinks}</h4>
             <ul className="space-y-2 text-sm text-red-100 font-bold">
-              <li><Link href="/" onClick={() => triggerLoader(() => { })} className="hover:text-white font-bold cursor-pointer">{curr.home}</Link></li>
-              <li><Link href="/photos" onClick={() => triggerLoader(() => { })} className="hover:text-white font-bold cursor-pointer">{curr.photos}</Link></li>
+              <li><button onClick={() => navigateToSection('/')} className="hover:text-white font-bold cursor-pointer">{curr.home}</button></li>
+              <li><button onClick={() => navigateToSection('/photos')} className="hover:text-white font-bold cursor-pointer">{curr.photos}</button></li>
               <li><button onClick={() => setContactModalOpen(true)} className="hover:text-white font-bold cursor-pointer">{curr.contact}</button></li>
               <li><button onClick={() => setJoinModalOpen(true)} className="hover:text-white font-bold cursor-pointer">{curr.joinUs}</button></li>
             </ul>
@@ -551,7 +557,6 @@ export default function PhotosPage() {
             <p className="text-sm text-red-100 leading-relaxed mb-3 font-bold">
               Parmanand Ashram, Padleganj, Kasya Road, Kalepur, Gorakhpur, Uttar Pradesh, 273001
             </p>
-            {/* Footer Social Icons */}
             <div className="flex space-x-3 mt-3">
               <a href="https://www.instagram.com/drpkraisp?stkn=Zmh6bmVyczJzNG8z" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2 rounded-lg shadow hover:bg-gray-100 transition flex items-center justify-center cursor-pointer" title="Instagram">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
