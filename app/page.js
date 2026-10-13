@@ -5,7 +5,7 @@ import { translator } from "./constants/languages.js";
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [lang, setLang] = useState('hi'); // Default Hindi on reload or direct link
+  const [lang, setLang] = useState('hi');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
@@ -29,7 +29,7 @@ export default function Home() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const photoList = Array.from({ length: 50 }, (_, i) => i + 1);
 
-  // जब कोई /photos पेज से #biodata या #journey पर आए तो सीधे उस सेक्शन पर स्मूथ स्क्रॉल कराए
+  // Hash Navigation Fix
   useEffect(() => {
     const handleHashScroll = () => {
       const hash = window.location.hash;
@@ -67,7 +67,7 @@ export default function Home() {
     };
   }, []);
 
-  // Scroll-triggered dynamic positioning
+  // Scroll animations
   useEffect(() => {
     const observerCallback = (entries) => {
       entries.forEach((entry) => {
@@ -94,7 +94,7 @@ export default function Home() {
     };
   }, []);
 
-  // Track active scrolling so elements move ONLY while scrolling
+  // Track active scrolling
   useEffect(() => {
     let isScrollingTimeout;
     const handleBodyScroll = () => {
@@ -133,6 +133,7 @@ export default function Home() {
     }
   };
 
+  // 0.5s Loader
   const triggerLoader = (targetUrlOrAction) => {
     setIsLoading(true);
 
@@ -165,7 +166,7 @@ export default function Home() {
         window.location.href = targetUrlOrAction;
         return;
       }
-    }, 200);
+    }, 500);
   };
 
   const scrollToTop = () => {
@@ -183,18 +184,17 @@ export default function Home() {
   const handleJoinSubmit = (e) => {
     e.preventDefault();
     const waMessage = encodeURIComponent(
-      `Hello Dr. P. K. Rai Team,\n\nI want to join/volunteer as a supporter.\n\nName: ${joinName}\nAddress: ${joinAddress}\nAssembly (विधानसभा): ${joinAssembly}\nDistrict (जिला): ${joinDistrict}`
+      `Hello Dr P K Rai Team,\n\nI want to join/volunteer as a supporter.\n\nName: ${joinName}\nAddress: ${joinAddress}\nAssembly (विधानसभा): ${joinAssembly}\nDistrict (जिला): ${joinDistrict}`
     );
     window.open(`https://wa.me/917521921824?text=${waMessage}`, '_blank');
   };
 
   const curr = translator[lang];
-  const mainTitleText = lang === 'hi' ? 'डा० प्रमोद कुमार राय' : 'Dr. Pramod Kumar Rai';
+  const mainTitleText = lang === 'hi' ? 'डा प्रमोद कुमार राय' : 'Dr Pramod Kumar Rai';
 
   return (
-    <div id="home" className="min-h-screen flex flex-col bg-white text-gray-900 font-sans w-full overflow-x-hidden relative scroll-mt-24">
+    <div id="home" className="min-h-screen flex flex-col bg-white text-gray-900 font-sans w-full overflow-x-hidden relative scroll-mt-24 cursor-default">
 
-      {/* Static Header & Scroll Animation Style */}
       <style jsx>{`
         .scroll-anim-item {
           opacity: 0;
@@ -236,18 +236,33 @@ export default function Home() {
           justify-content: center;
           overflow: visible;
         }
+
+        @keyframes popupZoom {
+          0% {
+            opacity: 0;
+            transform: scale(0.85);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-popup-zoom {
+          animation: popupZoom 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
       `}</style>
 
-      {/* Lightbox Modal */}
+      {/* Lightbox Pop-up Modal */}
       {lightboxImg && (
         <div
           onClick={() => setLightboxImg(null)}
           className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
         >
-          <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
+          <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center animate-popup-zoom">
             <button
               onClick={() => setLightboxImg(null)}
-              className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl cursor-pointer transition z-50"
+              className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl cursor-pointer transition z-50 border border-white/40"
+              aria-label="Close"
             >
               ✕
             </button>
@@ -261,8 +276,9 @@ export default function Home() {
         </div>
       )}
 
+      {/* 0.5s Loader Screen */}
       {isLoading && (
-        <div className="fixed inset-0 z-50 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center space-y-4">
+        <div className="fixed inset-0 z-50 bg-white/90 backdrop-blur-md flex items-center justify-center">
           <div className="w-12 h-12 border-4 border-[#FE0000] border-t-[#018B00] rounded-full animate-spin"></div>
         </div>
       )}
@@ -294,7 +310,7 @@ export default function Home() {
             💬
           </button>
         ) : (
-          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-3xl shadow-2xl border-2 border-gray-200 w-[90vw] sm:w-96 overflow-hidden flex flex-col">
+          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-3xl shadow-2xl border-2 border-gray-200 w-[90vw] sm:w-96 overflow-hidden flex flex-col cursor-default">
             <div className="bg-[#FE0000] text-white p-5 relative">
               <button
                 onClick={() => { setChatOpen(false); setChatFormOpen(false); }}
@@ -304,22 +320,25 @@ export default function Home() {
               </button>
               <div className="text-center space-y-2 mt-1">
                 <h3 className="text-lg font-black">{curr.contact}</h3>
-                <div className="w-14 h-14 bg-white rounded-full mx-auto overflow-hidden border-2 border-white shadow-md flex items-center justify-center text-[#FE0000] font-black text-base flex-shrink-0">
-                  <img src="/DrPkRaiProfile.jpg" alt="Dr. P. K. Rai" className="w-full h-full object-cover object-center" />
+                <div 
+                  onClick={() => setLightboxImg("/DrPkRaiProfile.jpg")}
+                  className="w-14 h-14 bg-white rounded-full mx-auto overflow-hidden border-2 border-white shadow-md flex items-center justify-center text-[#FE0000] font-black text-base flex-shrink-0 cursor-pointer"
+                >
+                  <img src="/DrPkRaiProfile.jpg" alt="Dr P K Rai" className="w-full h-full object-cover object-center" />
                 </div>
               </div>
             </div>
 
-            <div className="p-5 bg-gray-50 flex-grow space-y-3">
+            <div className="p-5 bg-gray-50 flex-grow space-y-3 cursor-default">
               {!chatFormOpen ? (
                 <>
-                  <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Recent Conversations</div>
+                  <div className="text-xs font-bold text-gray-500 uppercase tracking-wider cursor-default">Recent Conversations</div>
                   <div
                     onClick={() => setChatFormOpen(true)}
                     className="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 hover:border-[#FE0000] cursor-pointer transition space-y-1"
                   >
                     <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span className="font-bold text-gray-800">Dr. P. K. Rai Office</span>
+                      <span className="font-bold text-gray-800">Dr P K Rai Office</span>
                       <span>Just now</span>
                     </div>
                     <p className="text-xs text-gray-600">I have a question / कोई प्रश्न है?</p>
@@ -333,7 +352,7 @@ export default function Home() {
                       alert("कृपया सभी जानकारी (नाम, मोबाइल नंबर और संदेश) भरें।");
                       return;
                     }
-                    const subject = encodeURIComponent(`New Inquiry from ${visitorName} - Dr. P. K. Rai Portal`);
+                    const subject = encodeURIComponent(`New Inquiry from ${visitorName} - Dr P K Rai Portal`);
                     const body = encodeURIComponent(
                       `Name: ${visitorName}\nMobile: ${visitorPhone}\n\nMessage:\n${visitorMsg}`
                     );
@@ -348,18 +367,18 @@ export default function Home() {
                   }}
                   className="space-y-3"
                 >
-                  <div className="text-xs font-bold text-[#FE0000] uppercase tracking-wider">Send Message via Gmail</div>
+                  <div className="text-xs font-bold text-[#FE0000] uppercase tracking-wider cursor-default">Send Message via Gmail</div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">Your Name</label>
-                    <input type="text" required value={visitorName} onChange={(e) => setVisitorName(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-[#FE0000] cursor-pointer" placeholder="Enter your name" />
+                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1 cursor-default">Your Name</label>
+                    <input type="text" required value={visitorName} onChange={(e) => setVisitorName(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-[#FE0000] cursor-text" placeholder="Enter your name" />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">Mobile Number</label>
-                    <input type="tel" required value={visitorPhone} onChange={(e) => setVisitorPhone(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-[#FE0000] cursor-pointer" placeholder="Enter mobile number" />
+                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1 cursor-default">Mobile Number</label>
+                    <input type="tel" required value={visitorPhone} onChange={(e) => setVisitorPhone(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-[#FE0000] cursor-text" placeholder="Enter mobile number" />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">Message</label>
-                    <textarea rows={3} required value={visitorMsg} onChange={(e) => setVisitorMsg(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-[#FE0000] cursor-pointer" placeholder="Type your question..."></textarea>
+                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1 cursor-default">Message</label>
+                    <textarea rows={3} required value={visitorMsg} onChange={(e) => setVisitorMsg(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-[#FE0000] cursor-text" placeholder="Type your question..."></textarea>
                   </div>
                   <button type="submit" className="w-full bg-[#FE0000] hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg cursor-pointer">Send to Gmail ✉️</button>
                   <button type="button" onClick={() => setChatFormOpen(false)} className="w-full text-center text-xs text-gray-500 hover:text-gray-800 pt-1 cursor-pointer">← Back</button>
@@ -386,24 +405,24 @@ export default function Home() {
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border-4 border-[#FE0000] cursor-default max-h-[90vh] flex flex-col scroll-anim-item anim-scale in-view"
           >
-            <div className="bg-[#FE0000] text-white p-5 flex justify-between items-center flex-shrink-0">
+            <div className="bg-[#FE0000] text-white p-5 flex justify-between items-center flex-shrink-0 cursor-default">
               <div className="flex items-center space-x-3">
                 <div
                   onClick={() => setLightboxImg("/DrPkRaiProfile.jpg")}
                   className="w-10 h-10 bg-white text-[#FE0000] rounded-full overflow-hidden flex items-center justify-center font-black text-xs shadow cursor-pointer border-2 border-white flex-shrink-0"
                 >
-                  <img src="/DrPkRaiProfile.jpg" alt="Dr. P. K. Rai" className="w-full h-full object-cover object-center" />
+                  <img src="/DrPkRaiProfile.jpg" alt="Dr P K Rai" className="w-full h-full object-cover object-center" />
                 </div>
-                <div>
+                <div className="cursor-default">
                   <h3 className="text-base font-bold text-green-200">Contact Us</h3>
-                  <p className="text-[10px] text-white leading-tight">Dr. P. K. Rai - Ex-MLA, Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government</p>
+                  <p className="text-[10px] text-white leading-tight">Dr P K Rai - Ex-MLA, Tamkuhiraj Assembly / Former Minister of Uttar Pradesh Government</p>
                 </div>
               </div>
               <button onClick={() => setContactModalOpen(false)} className="bg-white/25 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
             </div>
 
-            <div className="p-6 space-y-6 text-gray-800 text-xs sm:text-sm overflow-y-auto flex-grow">
-              <div className="text-center space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-200">
+            <div className="p-6 space-y-6 text-gray-800 text-xs sm:text-sm overflow-y-auto flex-grow cursor-default">
+              <div className="text-center space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-200 cursor-default">
                 <p className="font-bold text-black text-sm">Parmanand Ashram, paidleganj, kasia road, kalepur, Gorakhpur, Uttar Pradesh, India</p>
                 <a
                   href="https://wa.me/917521921824"
@@ -415,20 +434,20 @@ export default function Home() {
                 </a>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-gray-200">
-                  <h4 className="font-extrabold text-[#FE0000] uppercase text-sm border-b pb-2">dr.p.k. rai</h4>
-                  <p className="text-gray-700 font-medium">Parmanand Ashram,paidleganj,kasia road,kalepur,Gorakhpur, Uttar Pradesh, India</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 cursor-default">
+                <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-gray-200 cursor-default">
+                  <h4 className="font-extrabold text-[#FE0000] uppercase text-sm border-b pb-2 cursor-default">dr p k rai</h4>
+                  <p className="text-gray-700 font-medium cursor-default">Parmanand Ashram,paidleganj,kasia road,kalepur,Gorakhpur, Uttar Pradesh, India</p>
                   <div className="space-y-1 font-bold">
-                    <p><a href="tel:9415905658" className="text-[#FE0000] hover:underline">9415905658</a></p>
-                    <p><a href="tel:8303138738" className="text-[#FE0000] hover:underline">8303138738</a></p>
-                    <p><a href="mailto:drraipk@gmail.com" className="text-blue-600 hover:underline">drraipk@gmail.com</a></p>
+                    <p><a href="tel:9415905658" className="text-[#FE0000] hover:underline cursor-pointer">9415905658</a></p>
+                    <p><a href="tel:8303138738" className="text-[#FE0000] hover:underline cursor-pointer">8303138738</a></p>
+                    <p><a href="mailto:drraipk@gmail.com" className="text-blue-600 hover:underline cursor-pointer">drraipk@gmail.com</a></p>
                   </div>
                 </div>
 
-                <div className="space-y-2 bg-slate-50 p-4 rounded-2xl border border-gray-200">
-                  <h4 className="font-extrabold text-[#018B00] uppercase text-sm border-b pb-2">Hours</h4>
-                  <div className="space-y-1 text-xs text-gray-700 font-semibold">
+                <div className="space-y-2 bg-slate-50 p-4 rounded-2xl border border-gray-200 cursor-default">
+                  <h4 className="font-extrabold text-[#018B00] uppercase text-sm border-b pb-2 cursor-default">Hours</h4>
+                  <div className="space-y-1 text-xs text-gray-700 font-semibold cursor-default">
                     <div className="flex justify-between"><span>Mon</span><span>09:00 am - 05:00 pm</span></div>
                     <div className="flex justify-between"><span>Tue</span><span>09:00 am - 05:00 pm</span></div>
                     <div className="flex justify-between"><span>Wed</span><span>09:00 am - 05:00 pm</span></div>
@@ -471,29 +490,29 @@ export default function Home() {
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border-4 border-[#FE0000] cursor-default scroll-anim-item anim-scale in-view"
           >
-            <div className="bg-[#FE0000] text-white p-5 flex justify-between items-center">
+            <div className="bg-[#FE0000] text-white p-5 flex justify-between items-center cursor-default">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-white text-[#FE0000] rounded-full flex items-center justify-center font-black text-xs shadow flex-shrink-0">JOIN</div>
-                <h3 className="text-base font-bold">{curr.joinUs}</h3>
+                <div className="w-9 h-9 bg-white text-[#FE0000] rounded-full flex items-center justify-center font-black text-xs shadow flex-shrink-0 cursor-default">JOIN</div>
+                <h3 className="text-base font-bold cursor-default">{curr.joinUs}</h3>
               </div>
               <button onClick={() => setJoinModalOpen(false)} className="bg-white/25 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
             </div>
-            <form onSubmit={handleJoinSubmit} className="p-6 space-y-3 text-gray-800 text-xs sm:text-sm">
+            <form onSubmit={handleJoinSubmit} className="p-6 space-y-3 text-gray-800 text-xs sm:text-sm cursor-default">
               <div>
-                <label className="block font-bold uppercase text-gray-600 mb-1">आपका नाम (Full Name)</label>
-                <input type="text" required value={joinName} onChange={(e) => setJoinName(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl focus:outline-none focus:border-[#FE0000] cursor-pointer" placeholder="पूरा नाम दर्ज करें" />
+                <label className="block font-bold uppercase text-gray-600 mb-1 cursor-default">आपका नाम (Full Name)</label>
+                <input type="text" required value={joinName} onChange={(e) => setJoinName(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl focus:outline-none focus:border-[#FE0000] cursor-text" placeholder="पूरा नाम दर्ज करें" />
               </div>
               <div>
-                <label className="block font-bold uppercase text-gray-600 mb-1">पूरा पता (Address)</label>
-                <input type="text" required value={joinAddress} onChange={(e) => setJoinAddress(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl focus:outline-none focus:border-[#FE0000] cursor-pointer" placeholder="गाँव / मोहल्ला / वार्ड" />
+                <label className="block font-bold uppercase text-gray-600 mb-1 cursor-default">पूरा पता (Address)</label>
+                <input type="text" required value={joinAddress} onChange={(e) => setJoinAddress(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl focus:outline-none focus:border-[#FE0000] cursor-text" placeholder="गाँव / मोहल्ला / वार्ड" />
               </div>
               <div>
-                <label className="block font-bold uppercase text-gray-600 mb-1">विधानसभा क्षेत्र (Assembly)</label>
-                <input type="text" required value={joinAssembly} onChange={(e) => setJoinAssembly(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl focus:outline-none focus:border-[#FE0000] cursor-pointer font-bold text-black" placeholder="तमकुहीराज विधानसभा" />
+                <label className="block font-bold uppercase text-gray-600 mb-1 cursor-default">विधानसभा क्षेत्र (Assembly)</label>
+                <input type="text" required value={joinAssembly} onChange={(e) => setJoinAssembly(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl focus:outline-none focus:border-[#FE0000] cursor-text font-bold text-black" placeholder="तमकुहीराज विधानसभा" />
               </div>
               <div>
-                <label className="block font-bold uppercase text-gray-600 mb-1">जिला (District)</label>
-                <input type="text" required value={joinDistrict} onChange={(e) => setJoinDistrict(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl focus:outline-none focus:border-[#FE0000] cursor-pointer" placeholder="कुशीनगर" />
+                <label className="block font-bold uppercase text-gray-600 mb-1 cursor-default">जिला (District)</label>
+                <input type="text" required value={joinDistrict} onChange={(e) => setJoinDistrict(e.target.value)} className="w-full border border-gray-300 p-2.5 rounded-xl focus:outline-none focus:border-[#FE0000] cursor-text" placeholder="कुशीनगर" />
               </div>
               <button type="submit" className="w-full bg-[#FE0000] hover:bg-red-700 text-white font-black py-3 rounded-xl shadow-lg cursor-pointer">WhatsApp पर भेजें 🟢</button>
             </form>
@@ -502,36 +521,37 @@ export default function Home() {
       )}
 
       {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-[#FE0000] border-b-4 border-[#018B00] shadow-md w-full text-white">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-[#FE0000] border-b-4 border-[#018B00] shadow-md w-full text-white cursor-default select-none">
         <div className="w-full px-3 sm:px-8 lg:px-12">
           <div className="flex justify-between items-center h-16 sm:h-20">
-            <Link
-              href="/"
-              onClick={() => scrollToTop()}
-              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer min-w-0 pr-2"
-            >
-              <div className="w-10 h-10 min-w-[2.5rem] sm:w-12 sm:h-12 sm:min-w-[3rem] bg-white rounded-full overflow-hidden border-2 border-green-200 shadow-md flex items-center justify-center flex-shrink-0">
+            {/* Header Brand Section: Photo clicks to zoom in popup, Text is non-clickable */}
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 pr-2">
+              <div 
+                onClick={() => setLightboxImg("/DrPkRaiProfile.jpg")}
+                className="w-10 h-10 min-w-[2.5rem] sm:w-12 sm:h-12 sm:min-w-[3rem] bg-white rounded-full overflow-hidden border-2 border-green-200 shadow-md flex items-center justify-center flex-shrink-0 cursor-pointer"
+                title="Photo Zoom"
+              >
                 <img
                   src="/DrPkRaiProfile.jpg"
-                  alt="Logo"
-                  className="w-full h-full object-cover object-center"
+                  alt="Dr P K Rai"
+                  className="w-full h-full object-cover object-center pointer-events-none"
                 />
               </div>
-              <div className="min-w-0 flex flex-col justify-center">
-                <span className="block text-sm sm:text-lg font-black uppercase tracking-tight text-white leading-tight truncate">
-                  Dr. P. K. Rai
+              <div className="min-w-0 flex flex-col justify-center cursor-default">
+                <span className="block text-sm sm:text-lg font-black uppercase tracking-tight text-white leading-tight truncate cursor-default">
+                  DR P K RAI
                 </span>
-                <span className="block text-[8px] sm:text-[10px] font-bold text-green-100 uppercase tracking-tight sm:tracking-widest leading-tight truncate mt-0.5">
-                  Ex-MLA, Tamkuhiraj Assembly / Former Minister
+                <span className="block text-[8px] sm:text-[10px] font-bold text-green-100 uppercase tracking-tight sm:tracking-widest leading-tight truncate mt-0.5 cursor-default">
+                  EX-MLA, TAMKUHIRAJ ASSEMBLY / FORMER MINISTER
                 </span>
               </div>
-            </Link>
+            </div>
 
             <nav className="hidden md:flex space-x-4 lg:space-x-6 font-bold text-xs lg:text-sm text-white items-center">
               <button onClick={() => triggerLoader('targetToTop')} className="hover:text-green-200 cursor-pointer">{curr.home}</button>
               <button onClick={() => triggerLoader('/#biodata')} className="hover:text-green-200 cursor-pointer">{curr.about}</button>
               <button onClick={() => triggerLoader('/#journey')} className="hover:text-green-200 cursor-pointer">{curr.journey}</button>
-              <Link href="/photos" onClick={() => triggerLoader(() => { })} className="hover:text-green-200 cursor-pointer">{curr.photos}</Link>
+              <button onClick={() => triggerLoader('/photos')} className="hover:text-green-200 cursor-pointer">{curr.photos}</button>
               <button onClick={() => setContactModalOpen(true)} className="hover:text-green-200 cursor-pointer">{curr.contact}</button>
               <button onClick={() => setJoinModalOpen(true)} className="hover:text-green-200 cursor-pointer">{curr.joinUs}</button>
             </nav>
@@ -549,87 +569,115 @@ export default function Home() {
               </a>
             </div>
 
+            {/* Mobile Menu Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-white p-2 bg-black/20 rounded-xl text-xl cursor-pointer flex-shrink-0"
+              className="md:hidden text-white p-2 text-2xl cursor-pointer flex-shrink-0 flex items-center justify-center hover:opacity-80 transition"
+              aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? '✕' : '☰'}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Full Screen Clean Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="fixed inset-x-0 top-16 sm:top-20 bg-[#FE0000] z-40 px-6 py-6 space-y-4 font-bold text-lg shadow-2xl flex flex-col border-b-4 border-[#018B00]">
-            <button onClick={() => { setMobileMenuOpen(false); triggerLoader('targetToTop'); }} className="text-left hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">🏠 {curr.home}</button>
-            <button onClick={() => { setMobileMenuOpen(false); triggerLoader('/#biodata'); }} className="text-left hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">ℹ️ {curr.about}</button>
-            <button onClick={() => { setMobileMenuOpen(false); triggerLoader('/#journey'); }} className="text-left hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">🗺️ {curr.journey}</button>
-            <Link href="/photos" onClick={() => { setMobileMenuOpen(false); }} className="hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">🖼️ {curr.photos}</Link>
-            <button onClick={() => { setMobileMenuOpen(false); setContactModalOpen(true); }} className="text-left hover:text-green-200 border-b border-red-600 pb-2 cursor-pointer">📞 {curr.contact}</button>
-            <button onClick={() => { setMobileMenuOpen(false); setJoinModalOpen(true); }} className="text-left hover:text-green-200 pb-2 cursor-pointer">🤝 {curr.joinUs}</button>
+          <div className="fixed inset-0 w-screen h-screen bg-[#FE0000] z-50 flex flex-col justify-between p-6 sm:p-10 overflow-y-auto animate-popup-zoom cursor-default">
+            <div className="flex justify-between items-center pb-6 border-b border-white/20">
+              <div className="flex items-center space-x-3">
+                <div 
+                  onClick={() => { setMobileMenuOpen(false); setLightboxImg("/DrPkRaiProfile.jpg"); }}
+                  className="w-12 h-12 bg-white rounded-full overflow-hidden border-2 border-green-200 shadow flex items-center justify-center cursor-pointer"
+                >
+                  <img src="/DrPkRaiProfile.jpg" alt="Logo" className="w-full h-full object-cover object-center" />
+                </div>
+                <div className="cursor-default">
+                  <span className="block text-lg font-black uppercase text-white leading-tight">DR P K RAI</span>
+                  <span className="block text-[10px] font-bold text-green-100 uppercase tracking-wider">Former Minister of UP Govt</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-white text-3xl font-light hover:rotate-90 transition transform cursor-pointer p-2"
+                aria-label="Close Menu"
+              >
+                ✕
+              </button>
+            </div>
 
-            {/* Social Icons in Mobile Menu */}
-            <div className="pt-4 border-t border-red-600 flex space-x-4">
-              <a href="https://www.instagram.com/drpkraisp?stkn=Zmh6bmVyczJzNG8z" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2.5 rounded-lg shadow flex items-center justify-center cursor-pointer">
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
-              </a>
-              <a href="https://www.facebook.com/share/1KBQPpLKq2/" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2.5 rounded-lg shadow flex items-center justify-center">
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.37 14.5 5 15.5 5H18V0h-3.808C10.59 0 9 1.588 9 4.71V8z" /></svg>
-              </a>
-              <a href="https://youtube.com/@drpkraisp?si=ieFumAbesc03zygR" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2.5 rounded-lg shadow flex items-center justify-center">
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
-              </a>
+            <div className="flex flex-col space-y-4 py-8 font-black text-xl sm:text-2xl">
+              <button onClick={() => { setMobileMenuOpen(false); triggerLoader('targetToTop'); }} className="text-left text-white hover:text-green-200 border-b border-white/10 pb-3 cursor-pointer">🏠 {curr.home}</button>
+              <button onClick={() => { setMobileMenuOpen(false); triggerLoader('/#biodata'); }} className="text-left text-white hover:text-green-200 border-b border-white/10 pb-3 cursor-pointer">ℹ️ {curr.about}</button>
+              <button onClick={() => { setMobileMenuOpen(false); triggerLoader('/#journey'); }} className="text-left text-white hover:text-green-200 border-b border-white/10 pb-3 cursor-pointer">🗺️ {curr.journey}</button>
+              <button onClick={() => { setMobileMenuOpen(false); triggerLoader('/photos'); }} className="text-left text-white hover:text-green-200 border-b border-white/10 pb-3 cursor-pointer">🖼️ {curr.photos}</button>
+              <button onClick={() => { setMobileMenuOpen(false); setContactModalOpen(true); }} className="text-left text-white hover:text-green-200 border-b border-white/10 pb-3 cursor-pointer">📞 {curr.contact}</button>
+              <button onClick={() => { setMobileMenuOpen(false); setJoinModalOpen(true); }} className="text-left text-white hover:text-green-200 pb-2 cursor-pointer">🤝 {curr.joinUs}</button>
+            </div>
+
+            <div className="pt-6 border-t border-white/20 flex flex-col sm:flex-row justify-between items-center gap-4 cursor-default">
+              <div className="flex space-x-4">
+                <a href="https://www.instagram.com/drpkraisp?stkn=Zmh6bmVyczJzNG8z" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-3 rounded-xl shadow flex items-center justify-center cursor-pointer">
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+                </a>
+                <a href="https://www.facebook.com/share/1KBQPpLKq2/" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-3 rounded-xl shadow flex items-center justify-center cursor-pointer">
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.37 14.5 5 15.5 5H18V0h-3.808C10.59 0 9 1.588 9 4.71V8z" /></svg>
+                </a>
+                <a href="https://youtube.com/@drpkraisp?si=ieFumAbesc03zygR" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-3 rounded-xl shadow flex items-center justify-center cursor-pointer">
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+                </a>
+              </div>
+              <span className="text-xs text-white/80 font-bold cursor-default">{curr.copyright}</span>
             </div>
           </div>
         )}
       </header>
 
-      {/* Spacer to prevent header from overlapping content */}
+      {/* Spacer */}
       <div className="h-16 sm:h-20"></div>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-white via-red-600 to-[#018B00] text-white py-12 sm:py-20 px-4 sm:px-8 w-full flex items-center justify-center overflow-hidden scroll-mt-24">
+      <section className="relative bg-gradient-to-b from-white via-red-600 to-[#018B00] text-white py-12 sm:py-20 px-4 sm:px-8 w-full flex items-center justify-center overflow-hidden scroll-mt-24 cursor-default">
         <div className="w-full max-w-7xl mx-auto flex flex-col items-center">
 
           <div className="w-full flex items-center justify-center mb-6">
-            <div className="cursor-default group">
+            <div className="cursor-pointer group" onClick={() => setLightboxImg("/samajwadi.jpg")}>
               <img
                 src="/samajwadi.jpg"
                 alt="Samajwadi"
-                className="w-[120px] sm:w-[160px] md:w-[190px] h-auto object-contain rounded-xl shadow-lg border-2 border-white transition-all duration-700 group-hover:scale-105 group-hover:shadow-2xl"
+                className="w-[120px] sm:w-[160px] md:w-[190px] h-auto object-contain rounded-xl shadow-lg border-2 border-white transition-all duration-700 group-hover:scale-105 group-hover:shadow-2xl cursor-pointer"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center text-center md:text-left w-full">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center text-center md:text-left w-full cursor-default">
 
             <div className="md:col-span-4 flex justify-center scroll-anim-item anim-left">
-              <div className="w-56 h-72 sm:w-72 sm:h-88 bg-white p-2.5 rounded-3xl shadow-2xl border-4 border-[#018B00] flex flex-col items-center justify-center transition-all duration-700 hover:scale-105 hover:shadow-green-500/50">
-                <div className="w-full h-full rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex items-center justify-center">
+              <div className="w-56 h-72 sm:w-72 sm:h-88 bg-white p-2.5 rounded-3xl shadow-2xl border-4 border-[#018B00] flex flex-col items-center justify-center transition-all duration-700 hover:scale-105 hover:shadow-green-500/50 cursor-default">
+                <div className="w-full h-full rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex items-center justify-center cursor-pointer">
                   <img
                     src="/DrpkRaiPhoto.jpg"
-                    alt="Dr. P. K. Rai"
-                    className="w-full h-full object-cover object-center cursor-pointer transition-all duration-700 hover:scale-110"
+                    alt="Dr P K Rai"
+                    className="w-full h-full object-cover object-center transition-all duration-700 hover:scale-110 cursor-pointer"
                     onClick={() => setLightboxImg('/DrpkRaiPhoto.jpg')}
                   />
                 </div>
-                <span className="text-xs sm:text-sm text-gray-900 font-black mt-2.5">Dr. P. K. Rai</span>
+                <span className="text-xs sm:text-sm text-gray-900 font-black mt-2.5 cursor-default">Dr P K Rai</span>
               </div>
             </div>
 
-            <div className="md:col-span-8 flex flex-col items-center md:items-start space-y-4 sm:space-y-6">
-              <div className="flex flex-col items-center md:items-start space-y-2">
-                <span className="bg-white text-[#FE0000] px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-extrabold uppercase tracking-widest shadow-md inline-block">
+            <div className="md:col-span-8 flex flex-col items-center md:items-start space-y-4 sm:space-y-6 cursor-default">
+              <div className="flex flex-col items-center md:items-start space-y-2 cursor-default">
+                <span className="bg-white text-[#FE0000] px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-extrabold uppercase tracking-widest shadow-md inline-block cursor-default">
                   {curr.portalBadge}
                 </span>
               </div>
-              <div className="hero-heading-box">
-                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-snug sm:leading-tight text-white drop-shadow-md">
+              <div className="hero-heading-box cursor-default">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-snug sm:leading-tight text-white drop-shadow-md cursor-default">
                   {mainTitleText}
                 </h1>
-                <span className="block text-lg sm:text-2xl font-bold mt-2 text-green-100">({curr.subtitle})</span>
+                <span className="block text-lg sm:text-2xl font-bold mt-2 text-green-100 cursor-default">({curr.subtitle})</span>
               </div>
-              <p className="text-xs sm:text-base md:text-lg text-gray-100 max-w-2xl font-light leading-relaxed">
+              <p className="text-xs sm:text-base md:text-lg text-gray-100 max-w-2xl font-light leading-relaxed cursor-default">
                 {curr.desc}
               </p>
               <div className="pt-2 flex flex-wrap justify-center md:justify-start gap-3 sm:gap-4">
@@ -647,21 +695,21 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="biodata" className="w-full bg-white py-12 sm:py-16 px-4 sm:px-8 lg:px-12 scroll-mt-24">
+      <section id="biodata" className="w-full bg-white py-12 sm:py-16 px-4 sm:px-8 lg:px-12 scroll-mt-24 cursor-default">
         <div className="w-full max-w-7xl mx-auto space-y-8 sm:space-y-12">
 
-          <div className="text-center fixed-heading-box">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">{curr.bioTitle}</h2>
+          <div className="text-center fixed-heading-box cursor-default">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 cursor-default">{curr.bioTitle}</h2>
             <div className="w-20 sm:w-24 h-1.5 bg-[#FE0000] mx-auto mt-3 rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full cursor-default">
 
-            <div className="bg-slate-50 rounded-2xl shadow-lg p-6 sm:p-8 border-t-8 border-[#FE0000] border-x border-b border-gray-100 scroll-anim-item anim-left">
-              <h3 className="text-lg sm:text-xl font-bold text-[#FE0000] mb-4 pb-3 border-b border-gray-200">
+            <div className="bg-slate-50 rounded-2xl shadow-lg p-6 sm:p-8 border-t-8 border-[#FE0000] border-x border-b border-gray-100 scroll-anim-item anim-left cursor-default">
+              <h3 className="text-lg sm:text-xl font-bold text-[#FE0000] mb-4 pb-3 border-b border-gray-200 cursor-default">
                 {curr.basicInfo}
               </h3>
-              <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed">
+              <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed cursor-default">
                 {curr.basicList.map((item, idx) => (
                   <li key={idx} className={idx % 3 === 0 ? 'text-[#FE0000]' : idx % 3 === 1 ? 'text-[#018B00]' : 'text-black'}>
                     {item}
@@ -670,11 +718,11 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl shadow-lg p-6 sm:p-8 border-t-8 border-[#018B00] border-x border-b border-gray-100 scroll-anim-item anim-bottom">
-              <h3 className="text-lg sm:text-xl font-bold text-[#018B00] mb-4 pb-3 border-b border-gray-200">
+            <div className="bg-slate-50 rounded-2xl shadow-lg p-6 sm:p-8 border-t-8 border-[#018B00] border-x border-b border-gray-100 scroll-anim-item anim-bottom cursor-default">
+              <h3 className="text-lg sm:text-xl font-bold text-[#018B00] mb-4 pb-3 border-b border-gray-200 cursor-default">
                 {curr.familyBg}
               </h3>
-              <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed">
+              <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed cursor-default">
                 {curr.familyList.map((item, idx) => (
                   <li key={idx} className={idx % 3 === 0 ? 'text-[#018B00]' : idx % 3 === 1 ? 'text-black' : 'text-[#FE0000]'}>
                     {item}
@@ -683,11 +731,11 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl shadow-lg p-6 sm:p-8 border-t-8 border-[#FE0000] border-x border-b border-gray-100 scroll-anim-item anim-right">
-              <h3 className="text-lg sm:text-xl font-bold text-[#FE0000] mb-4 pb-3 border-b border-gray-200">
+            <div className="bg-slate-50 rounded-2xl shadow-lg p-6 sm:p-8 border-t-8 border-[#FE0000] border-x border-b border-gray-100 scroll-anim-item anim-right cursor-default">
+              <h3 className="text-lg sm:text-xl font-bold text-[#FE0000] mb-4 pb-3 border-b border-gray-200 cursor-default">
                 {curr.familyTitle}
               </h3>
-              <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed">
+              <ul className="space-y-2.5 text-xs sm:text-sm font-bold leading-relaxed cursor-default">
                 {curr.childrenList.map((item, idx) => (
                   <li key={idx} className={idx % 2 === 0 ? 'text-black' : 'text-[#018B00]'}>
                     {item}
@@ -698,20 +746,20 @@ export default function Home() {
 
           </div>
 
-          <div className="bg-gradient-to-br from-red-50 to-green-50 rounded-3xl shadow-xl p-6 sm:p-10 border-2 border-green-200 space-y-6 scroll-anim-item anim-bottom">
-            <h3 className="text-xl sm:text-2xl font-black text-[#018B00] pb-3 border-b-2 border-green-300">
+          <div className="bg-gradient-to-br from-red-50 to-green-50 rounded-3xl shadow-xl p-6 sm:p-10 border-2 border-green-200 space-y-6 scroll-anim-item anim-bottom cursor-default">
+            <h3 className="text-xl sm:text-2xl font-black text-[#018B00] pb-3 border-b-2 border-green-300 cursor-default">
               {curr.educationTitle}
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-xs sm:text-sm text-gray-800 leading-relaxed">
-              <div className="space-y-2.5 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 whitespace-pre-line text-black font-bold scroll-anim-item anim-left">
-                <h4 className="font-extrabold text-[#FE0000] text-sm uppercase">{curr.eduSub}</h4>
-                <p>{curr.eduDetails}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-xs sm:text-sm text-gray-800 leading-relaxed cursor-default">
+              <div className="space-y-2.5 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 whitespace-pre-line text-black font-bold scroll-anim-item anim-left cursor-default">
+                <h4 className="font-extrabold text-[#FE0000] text-sm uppercase cursor-default">{curr.eduSub}</h4>
+                <p className="cursor-default">{curr.eduDetails}</p>
               </div>
 
-              <div className="space-y-2.5 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 whitespace-pre-line text-black font-bold scroll-anim-item anim-right">
-                <h4 className="font-extrabold text-[#018B00] text-sm uppercase">{curr.govSub}</h4>
-                <p>{curr.govDetails}</p>
+              <div className="space-y-2.5 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 whitespace-pre-line text-black font-bold scroll-anim-item anim-right cursor-default">
+                <h4 className="font-extrabold text-[#018B00] text-sm uppercase cursor-default">{curr.govSub}</h4>
+                <p className="cursor-default">{curr.govDetails}</p>
               </div>
             </div>
           </div>
@@ -720,22 +768,28 @@ export default function Home() {
       </section>
 
       {/* Featured Photos Section */}
-      <section className="w-full bg-slate-100 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 scroll-mt-24">
+      <section className="w-full bg-slate-100 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 scroll-mt-24 cursor-default">
         <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 items-center">
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-red-200 p-5 text-center scroll-anim-item anim-left">
-            <div className="w-full h-60 sm:h-72 rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex items-center justify-center border border-gray-300 mb-4 cursor-pointer">
-              <img src="/mulayam-photo.jpg" alt="Mulayam Singh Yadav" className="w-full h-full object-cover object-center cursor-pointer" onClick={() => setLightboxImg("/mulayam-photo.jpg")} />
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-red-200 p-5 text-center scroll-anim-item anim-left cursor-default">
+            <div 
+              onClick={() => setLightboxImg("/mulayam-photo.jpg")}
+              className="w-full h-60 sm:h-72 rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex items-center justify-center border border-gray-300 mb-4 cursor-pointer"
+            >
+              <img src="/mulayam-photo.jpg" alt="Mulayam Singh Yadav" className="w-full h-full object-cover object-center cursor-pointer hover:scale-105 transition duration-300" />
             </div>
-            <div className="inline-block bg-[#FE0000] text-white px-4 sm:px-6 py-1.5 rounded-full font-bold text-xs sm:text-sm">
+            <div className="inline-block bg-[#FE0000] text-white px-4 sm:px-6 py-1.5 rounded-full font-bold text-xs sm:text-sm cursor-default">
               — {curr.mulayamCaption} —
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-green-200 p-5 text-center scroll-anim-item anim-right">
-            <div className="w-full h-60 sm:h-72 rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex items-center justify-center border border-gray-300 mb-4 cursor-pointer">
-              <img src="/akhilesh.jpg" alt="Akhilesh Yadav" className="w-full h-full object-cover object-center cursor-pointer" onClick={() => setLightboxImg("/akhilesh.jpg")} />
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-green-200 p-5 text-center scroll-anim-item anim-right cursor-default">
+            <div 
+              onClick={() => setLightboxImg("/akhilesh.jpg")}
+              className="w-full h-60 sm:h-72 rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex items-center justify-center border border-gray-300 mb-4 cursor-pointer"
+            >
+              <img src="/akhilesh.jpg" alt="Akhilesh Yadav" className="w-full h-full object-cover object-center cursor-pointer hover:scale-105 transition duration-300" />
             </div>
-            <div className="inline-block bg-[#018B00] text-white px-4 sm:px-6 py-1.5 rounded-full font-bold text-xs sm:text-sm">
+            <div className="inline-block bg-[#018B00] text-white px-4 sm:px-6 py-1.5 rounded-full font-bold text-xs sm:text-sm cursor-default">
               — {curr.akhileshCaption} —
             </div>
           </div>
@@ -743,51 +797,51 @@ export default function Home() {
       </section>
 
       {/* Political Life (Journey) */}
-      <section id="journey" className="w-full bg-gradient-to-b from-slate-50 via-red-50 to-green-50 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 border-y border-gray-200 scroll-mt-24">
+      <section id="journey" className="w-full bg-gradient-to-b from-slate-50 via-red-50 to-green-50 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 border-y border-gray-200 scroll-mt-24 cursor-default">
         <div className="w-full max-w-6xl mx-auto space-y-6">
 
-          <div className="text-center mb-10 sm:mb-16 fixed-heading-box" style={{ minHeight: '6rem' }}>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">{curr.journey}</h2>
-            <p className="text-[#018B00] font-bold mt-2 text-xs sm:text-base">{curr.journeyDesc}</p>
+          <div className="text-center mb-10 sm:mb-16 fixed-heading-box cursor-default" style={{ minHeight: '6rem' }}>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 cursor-default">{curr.journey}</h2>
+            <p className="text-[#018B00] font-bold mt-2 text-xs sm:text-base cursor-default">{curr.journeyDesc}</p>
             <div className="w-20 sm:w-24 h-1.5 bg-[#018B00] mx-auto mt-3 rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 cursor-default">
             {curr.journeyPoints.map((point, idx) => (
               <div
                 key={idx}
                 className={`scroll-anim-item ${idx % 2 === 0 ? 'anim-left' : 'anim-right'} p-6 rounded-3xl shadow-lg border-2 bg-white transition hover:shadow-xl ${idx % 3 === 0 ? 'border-[#FE0000] text-[#FE0000]' : idx % 3 === 1 ? 'border-[#018B00] text-[#018B00]' : 'border-black text-black'
-                  } font-bold text-xs sm:text-sm leading-relaxed`}
+                  } font-bold text-xs sm:text-sm leading-relaxed cursor-default`}
               >
-                <p>{point}</p>
+                <p className="cursor-default">{point}</p>
               </div>
             ))}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 cursor-default">
             {curr.journeyMiddle.map((point, idx) => (
               <div
                 key={idx}
                 className={`scroll-anim-item ${idx % 2 === 0 ? 'anim-left' : 'anim-right'} p-6 rounded-3xl shadow-lg border-2 bg-white transition hover:shadow-xl ${idx % 2 === 0 ? 'border-black text-black' : 'border-[#FE0000] text-[#FE0000]'
-                  } font-bold text-xs sm:text-sm leading-relaxed`}
+                  } font-bold text-xs sm:text-sm leading-relaxed cursor-default`}
               >
-                <p>{point}</p>
+                <p className="cursor-default">{point}</p>
               </div>
             ))}
           </div>
 
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-gray-300 shadow-md text-xs sm:text-sm whitespace-pre-line font-bold text-black scroll-anim-item anim-bottom">
-            <p>{curr.collegeSubjects}</p>
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-gray-300 shadow-md text-xs sm:text-sm whitespace-pre-line font-bold text-black scroll-anim-item anim-bottom cursor-default">
+            <p className="cursor-default">{curr.collegeSubjects}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 cursor-default">
             {curr.journeyEnd.map((point, idx) => (
               <div
                 key={idx}
                 className={`scroll-anim-item ${idx % 2 === 0 ? 'anim-right' : 'anim-left'} p-6 rounded-3xl shadow-lg border-2 bg-white transition hover:shadow-xl ${idx % 3 === 0 ? 'border-black text-black' : idx % 3 === 1 ? 'border-[#FE0000] text-[#FE0000]' : 'border-[#018B00] text-[#018B00]'
-                  } font-bold text-xs sm:text-sm leading-relaxed`}
+                  } font-bold text-xs sm:text-sm leading-relaxed cursor-default`}
               >
-                <p>{point}</p>
+                <p className="cursor-default">{point}</p>
               </div>
             ))}
           </div>
@@ -812,19 +866,19 @@ export default function Home() {
           );
           observer.observe(node);
         }}
-        className="w-full bg-slate-100 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 border-t border-gray-200 scroll-mt-24"
+        className="w-full bg-slate-100 py-12 sm:py-16 px-4 sm:px-8 lg:px-12 border-t border-gray-200 scroll-mt-24 cursor-default"
       >
         <div className="w-full max-w-5xl mx-auto space-y-6 text-center">
 
-          <div className="fixed-heading-box" style={{ minHeight: '6rem' }}>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <div className="fixed-heading-box cursor-default" style={{ minHeight: '6rem' }}>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 cursor-default">
               {lang === 'hi' ? 'घर वापसी' : 'Ghar Vapasi (Homecoming)'}
             </h2>
             <div className="w-20 h-1.5 bg-[#FE0000] mx-auto mt-2 rounded-full"></div>
-            <p className="text-xs sm:text-sm text-gray-600 mt-2 font-bold">
+            <p className="text-xs sm:text-sm text-gray-600 mt-2 font-bold cursor-default">
               {lang === 'hi'
-                ? 'Dr. P. K. Rai - समाजवादी पार्टी में पुनरागमन और जनसभा का ऐतिहासिक क्षण'
-                : 'Dr. P. K. Rai - Historic moment of homecoming and public gathering in Samajwadi Party'}
+                ? 'Dr P K Rai - समाजवादी पार्टी में पुनरागमन और जनसभा का ऐतिहासिक क्षण'
+                : 'Dr P K Rai - Historic moment of homecoming and public gathering in Samajwadi Party'}
             </p>
           </div>
 
@@ -832,7 +886,7 @@ export default function Home() {
             <iframe
               className="w-full h-full"
               src="https://www.youtube.com/embed/SJpXFtko62o"
-              title="Dr. P. K. Rai घर वापसी"
+              title="Dr P K Rai घर वापसी"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             ></iframe>
@@ -854,22 +908,21 @@ export default function Home() {
       </div>
 
       {/* Expanded Photo Preview Section */}
-      <section className="w-full bg-white py-12 sm:py-16 px-4 sm:px-8 lg:px-12 scroll-mt-24">
+      <section className="w-full bg-white py-12 sm:py-16 px-4 sm:px-8 lg:px-12 scroll-mt-24 cursor-default">
         <div className="w-full max-w-7xl mx-auto">
 
-          <div className="flex flex-col md:flex-row justify-between items-center mb-8 sm:mb-10">
-            <div className="flex flex-col items-start justify-center scroll-anim-item anim-left" style={{ minHeight: '4rem' }}>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">{curr.photosTitle}</h2>
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8 sm:mb-10 cursor-default">
+            <div className="flex flex-col items-start justify-center scroll-anim-item anim-left cursor-default" style={{ minHeight: '4rem' }}>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 cursor-default">{curr.photosTitle}</h2>
               <div className="w-16 sm:w-20 h-1.5 bg-[#018B00] mt-2 rounded-full"></div>
             </div>
             <div className="scroll-anim-item anim-right mt-4 md:mt-0">
-              <Link
-                href="/photos"
-                onClick={() => triggerLoader(() => { })}
+              <button
+                onClick={() => triggerLoader('/photos')}
                 className="inline-block bg-[#FE0000] hover:bg-red-700 text-white font-bold px-5 sm:px-6 py-2.5 rounded-full shadow text-xs sm:text-sm transition cursor-pointer"
               >
                 {curr.seeAllPhotos}
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -896,9 +949,9 @@ export default function Home() {
                   onClick={() => setLightboxImg(`/drpkrai${item}.jpg`)}
                   className="min-w-[260px] sm:min-w-[300px] flex-shrink-0 bg-slate-50 border border-gray-200 rounded-2xl overflow-hidden shadow-lg p-4 cursor-pointer hover:shadow-xl transition snap-center group"
                 >
-                  <div className="w-full h-48 bg-gradient-to-br from-red-100 to-green-100 rounded-xl flex items-center justify-center text-gray-700 font-bold border border-gray-300 overflow-hidden relative">
-                    <img src={`/drpkrai${item}.jpg`} alt={`Dr. P. K. Rai ${item}`} className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-full h-48 bg-gradient-to-br from-red-100 to-green-100 rounded-xl flex items-center justify-center text-gray-700 font-bold border border-gray-300 overflow-hidden relative cursor-pointer">
+                    <img src={`/drpkrai${item}.jpg`} alt={`Dr P K Rai ${item}`} className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300 cursor-pointer" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold cursor-pointer">
                       🔍 Zoom Fullscreen
                     </div>
                   </div>
@@ -918,42 +971,60 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#FE0000] text-white border-t-4 border-[#018B00] w-full font-bold overflow-hidden">
-        <div className="w-full px-6 sm:px-10 lg:px-12 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-xs sm:text-sm">
-          <div className="scroll-anim-item anim-left">
-            <h3 className="text-xl sm:text-2xl font-black text-white mb-3">Dr. P. K. Rai</h3>
-            <p className="text-red-100 leading-relaxed">{curr.footerDesc}</p>
+      <footer className="bg-[#FE0000] text-white border-t-4 border-[#018B00] w-full font-bold overflow-hidden cursor-default">
+        <div className="w-full px-6 sm:px-10 lg:px-12 py-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-xs sm:text-sm cursor-default">
+          
+          <div className="scroll-anim-item anim-left space-y-3 cursor-default">
+            <h3 className="text-xl sm:text-2xl font-black text-white cursor-default">Dr P K Rai</h3>
+            <p className="text-red-100 leading-relaxed font-bold cursor-default">{curr.footerDesc}</p>
+            <div className="pt-2">
+              <button 
+                onClick={() => setJoinModalOpen(true)}
+                className="bg-white text-[#FE0000] px-4 py-2 rounded-xl font-black shadow hover:bg-gray-100 transition cursor-pointer text-xs"
+              >
+                🤝 {curr.joinUs}
+              </button>
+            </div>
           </div>
-          <div className="scroll-anim-item anim-bottom">
-            <h4 className="text-base sm:text-lg font-black text-green-200 mb-3">{curr.quickLinks}</h4>
-            <ul className="space-y-2 text-red-100">
-              <li><button onClick={() => triggerLoader('targetToTop')} className="hover:text-white cursor-pointer text-left">{curr.home}</button></li>
-              <li><Link href="/photos" onClick={() => triggerLoader(() => { })} className="hover:text-white cursor-pointer">{curr.photos}</Link></li>
-              <li><button onClick={() => setContactModalOpen(true)} className="hover:text-white text-left cursor-pointer">{curr.contact}</button></li>
+
+          <div className="scroll-anim-item anim-bottom cursor-default">
+            <h4 className="text-base sm:text-lg font-black text-green-200 mb-3 cursor-default">{curr.quickLinks}</h4>
+            <ul className="space-y-2 text-red-100 font-bold">
+              <li><button onClick={() => triggerLoader('targetToTop')} className="hover:text-white cursor-pointer text-left transition">🏠 {curr.home}</button></li>
+              <li><button onClick={() => triggerLoader('/#biodata')} className="hover:text-white cursor-pointer text-left transition">ℹ️ {curr.about}</button></li>
+              <li><button onClick={() => triggerLoader('/#journey')} className="hover:text-white cursor-pointer text-left transition">🗺️ {curr.journey}</button></li>
+              <li><button onClick={() => triggerLoader('/photos')} className="hover:text-white cursor-pointer text-left transition">🖼️ {curr.photos}</button></li>
+              <li><button onClick={() => setContactModalOpen(true)} className="hover:text-white text-left cursor-pointer transition">📞 {curr.contact}</button></li>
+              <li><button onClick={() => setJoinModalOpen(true)} className="hover:text-white text-left cursor-pointer transition">🤝 {curr.joinUs}</button></li>
             </ul>
           </div>
-          <div className="scroll-anim-item anim-right">
-            <h4 className="text-base sm:text-lg font-black text-green-200 mb-3">{curr.socialHead}</h4>
-            <p className="text-red-100 leading-relaxed mb-3">
-              Parmanand Ashram, Padleganj, Kasya Road, Kalepur, Gorakhpur, Uttar Pradesh, 273001
+
+          <div className="scroll-anim-item anim-right space-y-3 cursor-default">
+            <h4 className="text-base sm:text-lg font-black text-green-200 cursor-default">{curr.socialHead}</h4>
+            <p className="text-red-100 leading-relaxed font-bold cursor-default">
+              📍 Parmanand Ashram, Padleganj, Kasya Road, Kalepur, Gorakhpur, Uttar Pradesh, 273001
             </p>
-            <p className="text-red-100 mb-4">
-              <strong>Phone:</strong> <a href="tel:+919415905658" className="underline hover:text-green-200 cursor-pointer">+91 9415905658</a>
-            </p>
-            <div className="flex space-x-3 mt-3">
-              <a href="https://www.instagram.com/drpkraisp?stkn=Zmh6bmVyczJzNG8z" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2 rounded-lg shadow hover:bg-gray-100 transition flex items-center justify-center cursor-pointer" title="Instagram">
+            <div className="space-y-1 text-red-100 font-bold cursor-default">
+              <p>📞 <strong>Phone:</strong> <a href="tel:+919415905658" className="underline hover:text-green-200 cursor-pointer">+91 9415905658</a>, <a href="tel:+918303138738" className="underline hover:text-green-200 cursor-pointer">+91 8303138738</a></p>
+              <p>✉️ <strong>Email:</strong> <a href="mailto:drraipk@gmail.com" className="underline hover:text-green-200 cursor-pointer">drraipk@gmail.com</a></p>
+            </div>
+            
+            <div className="flex space-x-3 pt-2">
+              <a href="https://www.instagram.com/drpkraisp?stkn=Zmh6bmVyczJzNG8z" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2.5 rounded-xl shadow hover:bg-gray-100 transition flex items-center justify-center cursor-pointer" title="Instagram">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
               </a>
-              <a href="https://www.facebook.com/share/1KBQPpLKq2/" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2 rounded-lg shadow hover:bg-gray-100 transition flex items-center justify-center cursor-pointer" title="Facebook">
+              <a href="https://www.facebook.com/share/1KBQPpLKq2/" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2.5 rounded-xl shadow hover:bg-gray-100 transition flex items-center justify-center cursor-pointer" title="Facebook">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.37 14.5 5 15.5 5H18V0h-3.808C10.59 0 9 1.588 9 4.71V8z" /></svg>
               </a>
-              <a href="https://youtube.com/@drpkraisp?si=ieFumAbesc03zygR" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2 rounded-lg shadow hover:bg-gray-100 transition flex items-center justify-center cursor-pointer" title="YouTube">
+              <a href="https://youtube.com/@drpkraisp?si=ieFumAbesc03zygR" target="_blank" rel="noopener noreferrer" className="bg-white text-[#FE0000] p-2.5 rounded-xl shadow hover:bg-gray-100 transition flex items-center justify-center cursor-pointer" title="YouTube">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
               </a>
             </div>
           </div>
+
         </div>
-        <div className="bg-black py-3 text-center text-[10px] sm:text-xs text-gray-300 border-t border-red-700 w-full">
+
+        <div className="bg-black py-4 text-center text-[10px] sm:text-xs text-gray-300 border-t border-red-700 w-full cursor-default">
           {curr.copyright}
         </div>
       </footer>
